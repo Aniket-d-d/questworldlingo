@@ -45,6 +45,10 @@ Judge the verdict based on:
     era: "1203 AD",
     questionType: "knowledge",
     question: "What do you know of how Nalanda's wisdom reached Japan?",
+    avatarSrc: "/kukai.svg",
+    avatarSize: 100,
+    avatarBoxSize: 120,
+    avatarFrame: "none",
     systemPrompt: `You are a scholar in the tradition of Master Kukai (Kobo Daishi) at the Toji Temple in Kyoto, Japan, in 1203 AD. You guard the Lotus Sutra Commentary — a sacred text whose roots trace back to Nalanda University. Japanese monks revered Nalanda almost as a holy place.
 
 You speak with Zen-like precision — few words, deep meaning. You value discipline and focused understanding.
