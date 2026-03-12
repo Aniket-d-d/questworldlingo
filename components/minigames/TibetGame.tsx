@@ -1,7 +1,6 @@
 "use client";
 
-import WordMatch from "./WordMatch";
-import { WORD_PAIRS } from "@/constants/miniGames";
+import TibetBridgesGame from "./TibetBridgesGame";
 
 interface Props {
   pairCount: number;
@@ -9,8 +8,7 @@ interface Props {
 }
 
 // Kingdom V — Tibetan Empire · Tibetan
-// Future game type: sudoku
-export default function TibetGame({ pairCount, onComplete }: Props) {
-  const pairs = WORD_PAIRS.tibet.slice(0, pairCount);
-  return <WordMatch pairs={pairs} language="Tibetan" onComplete={onComplete} />;
+// Game: Island Bridges (Hashi)
+export default function TibetGame({ onComplete }: Props) {
+  return <TibetBridgesGame onComplete={onComplete} />;
 }

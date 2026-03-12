@@ -78,7 +78,7 @@ export const KINGDOMS: Kingdom[] = [
       "Tibetan monks who studied at Nalanda carried thousands of manuscripts back before the fire. Tibet preserved Nalanda's own soul.",
     artifact: "Nalanda's Original Manuscripts",
     scholarName: "Sakya Pandita",
-    miniGame: "sudoku",
+    miniGame: "bridges",
   },
 ];
 

@@ -27,7 +27,8 @@ export type MiniGameType =
   | "tetris"
   | "math_puzzle"
   | "memory_match"
-  | "sudoku";
+  | "sudoku"
+  | "bridges";
 
 export interface Player {
   id: string;
