@@ -24,7 +24,7 @@ export interface Kingdom {
 
 export type MiniGameType =
   | "memory_glow"
-  | "tetris"
+  | "kings"
   | "math_puzzle"
   | "memory_match"
   | "sudoku"

@@ -45,7 +45,7 @@ export const KINGDOMS: Kingdom[] = [
       "Japanese monks revered Nalanda almost as a holy place. Kukai and Ennin traced their knowledge back to Nalanda's teachings.",
     artifact: "The Lotus Sutra Commentary",
     scholarName: "Master Kukai",
-    miniGame: "tetris",
+    miniGame: "kings",
   },
   {
     id: "korea",
