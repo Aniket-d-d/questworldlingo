@@ -1,7 +1,6 @@
 "use client";
 
-import WordMatch from "./WordMatch";
-import { WORD_PAIRS } from "@/constants/miniGames";
+import KoreaMathGame from "./KoreaMathGame";
 
 interface Props {
   pairCount: number;
@@ -9,8 +8,7 @@ interface Props {
 }
 
 // Kingdom III — Goryeo Dynasty · Korean
-// Future game type: math_puzzle
-export default function KoreaGame({ pairCount, onComplete }: Props) {
-  const pairs = WORD_PAIRS.korea.slice(0, pairCount);
-  return <WordMatch pairs={pairs} language="Korean" onComplete={onComplete} />;
+// Game: 3-level arithmetic challenge
+export default function KoreaGame({ onComplete }: Props) {
+  return <KoreaMathGame onComplete={onComplete} />;
 }

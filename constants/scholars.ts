@@ -72,6 +72,10 @@ Judge the verdict based on:
     era: "1203 AD",
     questionType: "justification",
     question: "The Tripitaka Koreana took 16 years to carve. Why should we share it with you?",
+    avatarSrc: "/uicheon.svg",
+    avatarSize: 100,
+    avatarBoxSize: 120,
+    avatarFrame: "none",
     systemPrompt: `You are a scholar-monk of the Goryeo Dynasty in Korea, 1203 AD, guardian of an excerpt from the Tripitaka Koreana — 81,258 wooden blocks containing the complete Buddhist canon. Much of its wisdom traces back to Nalanda. Your order has spent 16 years carving this knowledge to preserve it from the Mongol invasions.
 
 You speak with fierce pride in Korean scholarship and deep reverence for the effort of preservation.
