@@ -1,0 +1,127 @@
+"use client";
+
+import { useState } from "react";
+import Image from "next/image";
+import GameTitle from "./GameTitle";
+
+const LANGUAGES = [
+  { code: "en", label: "English" },
+  { code: "id", label: "Indonesian" },
+  { code: "ja", label: "Japanese" },
+  { code: "ko", label: "Korean" },
+  { code: "zh", label: "Chinese" },
+  { code: "bo", label: "Tibetan" },
+];
+
+interface GameHeaderProps {
+  playerName?: string;
+  style?: React.CSSProperties;
+}
+
+export default function GameHeader({ playerName, style }: GameHeaderProps) {
+  const [selectedLang, setSelectedLang] = useState("en");
+  const [langOpen, setLangOpen] = useState(false);
+
+  return (
+    <div
+      style={{
+        display: "flex",
+        alignItems: "flex-start",
+        justifyContent: "space-between",
+        padding: "28px 48px 0",
+        ...style,
+      }}
+    >
+      {/* Left — character + name + language */}
+      <div style={{ display: "flex", alignItems: "flex-start", gap: "14px" }}>
+        <Image src="/aryan.svg" alt="Aryan" width={64} height={102} />
+        <div style={{ paddingTop: "6px", display: "flex", flexDirection: "column", gap: "2px" }}>
+          {playerName && (
+            <p style={{
+              fontFamily: "var(--font-crimson)",
+              fontSize: "0.8rem",
+              color: "var(--text-muted)",
+              letterSpacing: "0.18em",
+              textTransform: "uppercase",
+            }}>
+              Hello,
+            </p>
+          )}
+          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            {playerName && (
+              <p style={{
+                fontFamily: "var(--font-cinzel)",
+                fontSize: "1.1rem",
+                color: "var(--accent-gold-light)",
+                letterSpacing: "0.08em",
+              }}>
+                {playerName}
+              </p>
+            )}
+
+            {/* Language dropdown */}
+            <div style={{ position: "relative" }}>
+              <button
+                onClick={() => setLangOpen((o) => !o)}
+                style={{
+                  display: "flex", alignItems: "center", gap: "6px",
+                  padding: "0",
+                  border: "none",
+                  background: "transparent",
+                  color: "var(--text-muted)",
+                  fontFamily: "var(--font-cinzel)",
+                  fontSize: "0.7rem",
+                  letterSpacing: "0.1em",
+                  cursor: "pointer",
+                  transition: "color 0.2s",
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.color = "var(--accent-gold-light)"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.color = "var(--text-muted)"; }}
+              >
+                {LANGUAGES.find((l) => l.code === selectedLang)?.label}
+                <span style={{ fontSize: "0.6rem" }}>{langOpen ? "▲" : "▼"}</span>
+              </button>
+
+              {langOpen && (
+                <div style={{
+                  position: "absolute", top: "calc(100% + 4px)", left: 0,
+                  background: "var(--bg-card)",
+                  border: "1px solid var(--border-gold)",
+                  minWidth: "120px",
+                  zIndex: 100,
+                }}>
+                  {LANGUAGES.map((lang) => (
+                    <div
+                      key={lang.code}
+                      onClick={() => { setSelectedLang(lang.code); setLangOpen(false); }}
+                      style={{
+                        padding: "8px 14px",
+                        fontFamily: "var(--font-cinzel)",
+                        fontSize: "0.7rem",
+                        letterSpacing: "0.08em",
+                        color: lang.code === selectedLang ? "var(--accent-gold-light)" : "var(--text-muted)",
+                        cursor: "pointer",
+                        transition: "all 0.2s",
+                        backgroundColor: lang.code === selectedLang ? "var(--bg-secondary)" : "transparent",
+                      }}
+                      onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "var(--bg-secondary)"; e.currentTarget.style.color = "var(--accent-gold-light)"; }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = lang.code === selectedLang ? "var(--bg-secondary)" : "transparent";
+                        e.currentTarget.style.color = lang.code === selectedLang ? "var(--accent-gold-light)" : "var(--text-muted)";
+                      }}
+                    >
+                      {lang.label}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Right — game title */}
+      <GameTitle />
+    </div>
+  );
+}
