@@ -27,7 +27,6 @@ const JUDGMENT_RESPONSES: Record<string, string> = {
   japan:     "Stillness before the answer reveals more than the answer itself. You have considered carefully. The Dharma crossed vast seas to reach us. Speak freely — I am listening.",
   korea:     "We carved for sixteen years so that knowledge would not die. Your answer honours that work. I will remain here as long as you have questions.",
   china:     "Xuanzang walked barefoot through deserts for seventeen years. Knowledge demands that price. You understand this. What more would you know?",
-  mongolia:  "The steppe teaches this: only the strong survive, but only the wise endure. You have answered with strength. Continue — I have more to say.",
   tibet:     "We have kept these manuscripts for forty years, waiting for someone worthy. Your words suggest you may be that person. Ask what you wish.",
 };
 
@@ -57,12 +56,6 @@ const FREE_CHAT_RESPONSES: Record<string, string[]> = {
     "Xuanzang's journey was seventeen years. Yours need not be so long — but it must be just as deliberate.",
     "We have a saying: a single drop of ink can set a thousand people thinking. The manuscripts of Nalanda were an ocean.",
   ],
-  mongolia: [
-    "The Secret History was written in a script only the royal family could read. Some knowledge is protected not by walls but by language itself.",
-    "Genghis Khan could not read. But he understood the power of those who could, and he employed them without hesitation.",
-    "The steppe has its own library — in the movement of animals, the colour of the horizon, the smell of the wind before a storm.",
-    "We do not burn what we conquer if it is worth keeping. That is a truth history has not always recorded fairly about us.",
-  ],
   tibet: [
     "When the smoke rose above Nalanda, we had already received word. The texts arrived here before the ash had settled.",
     "Sakya Pandita said: a text that is not read is already half destroyed. We do not merely preserve — we study, every day.",
@@ -77,7 +70,6 @@ const GAME_COMPLETE_RESPONSES: Record<string, string> = {
   japan:     "The patterns you recalled — that is the same mind that transcribes a sutra without a single error across five hundred pages. You have earned the Lotus Sutra Commentary. It awaits you.",
   korea:     "Precision and memory. You have both. The Tripitaka Koreana Excerpt recognises you as worthy. Take it — it has waited long enough.",
   china:     "Shen Kuo would have approved. You observed, you remembered, you reproduced. The Dream Pool Essays belongs with you now. Claim it.",
-  mongolia:  "A warrior who cannot remember a formation is useless. A scholar who cannot remember a text is the same. You are neither. The Secret History is yours.",
   tibet:     "The monks who carried these texts across the Himalayas had minds exactly like yours — precise, fearless, devoted. Take Nalanda's Original Manuscripts. You have earned them.",
 };
 

@@ -3,7 +3,6 @@ export type KingdomId =
   | "japan"
   | "korea"
   | "china"
-  | "mongolia"
   | "tibet";
 
 export type KingdomStatus = "locked" | "available" | "in_progress" | "completed";
@@ -28,7 +27,6 @@ export type MiniGameType =
   | "tetris"
   | "math_puzzle"
   | "memory_match"
-  | "chess"
   | "sudoku";
 
 export interface Player {

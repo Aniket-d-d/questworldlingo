@@ -35,8 +35,7 @@ const KINGDOM_NUMBERS: Record<string, string> = {
   japan: "II",
   korea: "III",
   china: "IV",
-  mongolia: "V",
-  tibet: "VI",
+  tibet: "V",
 };
 
 export default function KingdomCard({

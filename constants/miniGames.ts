@@ -37,14 +37,6 @@ export const WORD_PAIRS: Record<string, WordPair[]> = {
     { id: "c5", word: "光 (guāng)", meaning: "light" },
     { id: "c6", word: "字 (zì)", meaning: "word" },
   ],
-  mongolia: [
-    { id: "m1", word: "ном (nom)", meaning: "book" },
-    { id: "m2", word: "мэдлэг (medleg)", meaning: "knowledge" },
-    { id: "m3", word: "бичих (bichikh)", meaning: "write" },
-    { id: "m4", word: "унших (unshikh)", meaning: "read" },
-    { id: "m5", word: "гэрэл (gerel)", meaning: "light" },
-    { id: "m6", word: "үг (üg)", meaning: "word" },
-  ],
   tibet: [
     { id: "t1", word: "དཔེ་ཆ (dpe-cha)", meaning: "book" },
     { id: "t2", word: "ཤེས་རབ (shes-rab)", meaning: "wisdom" },

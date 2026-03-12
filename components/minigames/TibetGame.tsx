@@ -8,7 +8,7 @@ interface Props {
   onComplete: (score: number, total: number) => void;
 }
 
-// Kingdom VI — Tibetan Empire · Tibetan
+// Kingdom V — Tibetan Empire · Tibetan
 // Future game type: sudoku
 export default function TibetGame({ pairCount, onComplete }: Props) {
   const pairs = WORD_PAIRS.tibet.slice(0, pairCount);

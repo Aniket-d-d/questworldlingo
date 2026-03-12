@@ -38,12 +38,6 @@ const MANUSCRIPT_DETAILS: Record<string, { excerpt: string; significance: string
     significance:
       "Shen Kuo's scientific observations, informed by the analytical tradition that Nalanda exemplified.",
   },
-  mongolia: {
-    excerpt:
-      "\"The sky is round above, the earth is flat below. Between them moves the man on horseback who carries knowledge from place to place...\"",
-    significance:
-      "The oldest Mongolian literary work — recording how oral tradition preserved what fire could not reach.",
-  },
   tibet: {
     excerpt:
       "\"These pages were carried by three monks across the Himalayas. They walked for forty days. Two did not return.\"",
@@ -110,7 +104,7 @@ export default function ChestPage() {
               color: "var(--text-muted)",
               fontStyle: "italic",
             }}>
-              {collectedCount} of 6 artifacts recovered
+              {collectedCount} of {KINGDOMS.length} artifacts recovered
             </p>
           </div>
 

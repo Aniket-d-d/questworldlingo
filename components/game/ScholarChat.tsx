@@ -20,8 +20,6 @@ const MOCK_RESPONSES: Record<string, string> = {
     "We carved for sixteen years so that knowledge would not die. Your answer honours that work. The excerpt is yours — guard it with the same devotion.",
   china:
     "Xuanzang walked barefoot through deserts for seventeen years. Knowledge demands that price. You have shown you understand this. Take the Dream Pool Essays. Add its waters to Nalanda's well.",
-  mongolia:
-    "The steppe teaches this: only the strong survive, but only the wise endure. You have answered with strength and wisdom both. The Secret History rides with you.",
   tibet:
     "We have kept these manuscripts for forty years, waiting for this moment. Waiting for you. Nalanda's soul never died — it waited here, in the cold and the silence, for someone who still mourned it. Take it home.",
 };

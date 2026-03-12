@@ -2,7 +2,6 @@ import SrivijayaGame from "./SrivijayaGame";
 import JapanGame from "./JapanGame";
 import KoreaGame from "./KoreaGame";
 import ChinaGame from "./ChinaGame";
-import MongoliaGame from "./MongoliaGame";
 import TibetGame from "./TibetGame";
 
 interface GameProps {
@@ -17,6 +16,5 @@ export const KINGDOM_GAMES: Record<string, GameComponent> = {
   japan: JapanGame,
   korea: KoreaGame,
   china: ChinaGame,
-  mongolia: MongoliaGame,
   tibet: TibetGame,
 };

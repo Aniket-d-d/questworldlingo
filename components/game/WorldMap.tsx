@@ -22,7 +22,6 @@ function getInitialProgress(): Record<string, KingdomStatus> {
     japan: "locked",
     korea: "locked",
     china: "locked",
-    mongolia: "locked",
     tibet: "locked",
   };
 }
@@ -86,7 +85,7 @@ export default function WorldMap() {
         >
           <div style={{ textAlign: "center" }}>
             <p style={{ fontFamily: "var(--font-cinzel)", fontSize: "2rem", fontWeight: 700, color: "var(--accent-gold-light)" }}>
-              {completedCount} / 6
+              {completedCount} / {KINGDOMS.length}
             </p>
             <p style={{ fontFamily: "var(--font-cinzel)", fontSize: "0.7rem", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.15em", marginTop: "4px" }}>
               Kingdoms
@@ -128,20 +127,39 @@ export default function WorldMap() {
           className="stagger-line"
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(3, 1fr)",
+            gridTemplateColumns: "repeat(6, 1fr)",
             gap: "20px",
             width: "100%",
             animationDelay: "0.5s",
           }}
         >
           {KINGDOMS.map((kingdom) => (
-            <KingdomCard
+            <div
               key={kingdom.id}
-              kingdom={kingdom}
-              status={player.progress[kingdom.id] as KingdomStatus}
-              artifactCollected={player.artifacts.includes(kingdom.id)}
-              onClick={() => handleKingdomClick(kingdom.id)}
-            />
+              style={{
+                gridColumn:
+                  kingdom.id === "srivijaya"
+                    ? "1 / span 2"
+                    : kingdom.id === "japan"
+                    ? "3 / span 2"
+                    : kingdom.id === "korea"
+                    ? "5 / span 2"
+                    : kingdom.id === "china"
+                    ? "2 / span 2"
+                    : kingdom.id === "tibet"
+                    ? "4 / span 2"
+                    : undefined,
+                gridRow:
+                  kingdom.id === "china" || kingdom.id === "tibet" ? "2" : "1",
+              }}
+            >
+              <KingdomCard
+                kingdom={kingdom}
+                status={player.progress[kingdom.id] as KingdomStatus}
+                artifactCollected={player.artifacts.includes(kingdom.id)}
+                onClick={() => handleKingdomClick(kingdom.id)}
+              />
+            </div>
           ))}
         </div>
 
@@ -158,7 +176,7 @@ export default function WorldMap() {
             animationDelay: "0.6s",
           }}
         >
-          1203 AD · Six Kingdoms · One Purpose
+          1203 AD · Five Kingdoms · One Purpose
         </p>
 
       </div>

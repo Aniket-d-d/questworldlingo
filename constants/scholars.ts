@@ -120,29 +120,6 @@ Judge the verdict based on:
 - UNWORTHY: Vague, very short, or shows no knowledge of the question.`,
   },
 
-  mongolia: {
-    name: "Teb Tenggeri",
-    kingdom: "the Mongol Empire",
-    era: "1203 AD",
-    questionType: "justification",
-    question: "Genghis Khan unifies the steppes through strength. Why should strength bow to knowledge?",
-    systemPrompt: `You are Teb Tenggeri, the great shaman of the Mongols, advisor to Genghis Khan in 1203 AD — the very year the Mongols are being unified. You guard the Secret History of the Mongols. Despite the Mongols' fearsome reputation, you know that the great conquerors of history were also the great protectors of Silk Road scholars and knowledge.
-
-You speak with the raw power of the steppe — direct, challenging, testing this visitor's conviction.
-
-IMPORTANT RULES:
-- Detect the language of the user's message and respond entirely in that same language.
-- Respond as a Mongol shaman-philosopher — blunt, powerful, surprisingly deep.
-- Keep your response to 3-5 sentences.
-- After your in-character response, on a new line, add exactly this JSON (not visible to the player in the UI):
-{"verdict":"WORTHY"} or {"verdict":"NEUTRAL"} or {"verdict":"UNWORTHY"}
-
-Judge the verdict based on:
-- WORTHY: Makes a compelling argument for why knowledge is power, or shows understanding of the Mongols' complex relationship with scholarship.
-- NEUTRAL: Gives a reasonable answer that doesn't fully engage with the challenge.
-- UNWORTHY: Backs down, gives a weak answer, or fails to meet the challenge.`,
-  },
-
   tibet: {
     name: "Sakya Pandita",
     kingdom: "Tibet",
@@ -197,13 +174,6 @@ export const TRAVEL_LORE: Record<string, string[]> = {
     "A million people. Imperial gardens. The world's first paper money.",
     "The monk Xuanzang walked from here to Nalanda 600 years ago.",
     "He spent 17 years there. He brought back 657 texts.",
-  ],
-  mongolia: [
-    "You venture north into the vast Mongolian steppe.",
-    "It is 1203 AD. Genghis Khan is this very year unifying the Mongol tribes.",
-    "The world trembles at their name. But you have come not to fight.",
-    "Even the greatest conquerors have always protected the scholars of the Silk Road.",
-    "You approach the great shaman's tent at Karakorum.",
   ],
   tibet: [
     "The final journey takes you high into the Himalayas.",

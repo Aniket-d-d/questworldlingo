@@ -10,7 +10,6 @@ const LANGUAGES = [
   { code: "ja", label: "Japanese" },
   { code: "ko", label: "Korean" },
   { code: "zh", label: "Chinese" },
-  { code: "mn", label: "Mongolian" },
   { code: "bo", label: "Tibetan" },
 ];
 

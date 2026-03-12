@@ -70,17 +70,6 @@ export const KINGDOMS: Kingdom[] = [
     miniGame: "memory_match",
   },
   {
-    id: "mongolia",
-    name: "Mongol Empire",
-    location: "Karakorum, Mongolia",
-    language: "Mongolian",
-    historicalHook:
-      "In 1203 AD Genghis Khan is unifying the Mongols. Despite their fearsome reputation, Mongols were great protectors of Silk Road scholars.",
-    artifact: "Secret History of the Mongols",
-    scholarName: "Teb Tenggeri",
-    miniGame: "chess",
-  },
-  {
     id: "tibet",
     name: "Tibetan Empire",
     location: "Lhasa, Tibet",
