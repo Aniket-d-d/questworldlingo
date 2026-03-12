@@ -1,29 +1,15 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { OPENING_NARRATION, MONK_DIALOGUE } from "@/constants/story";
-
-// Ember particle config
-const EMBERS = Array.from({ length: 12 }, (_, i) => ({
-  id: i,
-  left: `${8 + i * 7.5}%`,
-  size: i % 3 === 0 ? 3 : i % 2 === 0 ? 2 : 1.5,
-  duration: 4 + (i % 4),
-  delay: i * 0.6,
-}));
+import PageShell from "@/components/ui/PageShell";
+import GameTitle from "@/components/ui/GameTitle";
 
 export default function OpeningScene() {
   const router = useRouter();
   const [panel, setPanel] = useState(0);
-  const [panelKey, setPanelKey] = useState(0); // triggers stagger re-animation
-  const [loaded, setLoaded] = useState(false);
-
-  useEffect(() => {
-    // Page fade-in
-    const t = setTimeout(() => setLoaded(true), 50);
-    return () => clearTimeout(t);
-  }, []);
+  const [panelKey, setPanelKey] = useState(0);
 
   function goToPanel(n: number) {
     setPanel(n);
@@ -34,46 +20,10 @@ export default function OpeningScene() {
   const lines1 = MONK_DIALOGUE.lines;
 
   return (
-    <div
-      className="opening-page-enter"
-      style={{
-        width: "100vw",
-        height: "100vh",
-        overflow: "hidden",
-        display: "flex",
-        background: "var(--bg-primary)",
-        opacity: loaded ? 1 : 0,
-        transition: "opacity 1.2s ease",
-      }}
-    >
-      {/* ── Full-screen amber glow — fixed overlay on top of everything ── */}
-      <div style={{
-        position: "fixed", inset: 0, pointerEvents: "none", zIndex: 50,
-        background: "linear-gradient(to top, rgba(139,37,0,0.22) 0%, rgba(139,37,0,0.06) 35%, transparent 65%)",
-      }} />
-
-      {/* ── Ember particles (full screen, behind everything) ── */}
-      <div style={{ position: "fixed", inset: 0, pointerEvents: "none", zIndex: 0 }}>
-        {EMBERS.map((e) => (
-          <div
-            key={e.id}
-            style={{
-              position: "absolute",
-              left: e.left,
-              bottom: "15%",
-              width: `${e.size}px`,
-              height: `${e.size}px`,
-              borderRadius: "50%",
-              backgroundColor: "#c9922a",
-              animation: `emberFloat ${e.duration}s ease-out ${e.delay}s infinite`,
-              opacity: 0.5,
-            }}
-          />
-        ))}
-      </div>
+    <PageShell style={{ width: "100vw", height: "100vh", overflow: "hidden", display: "flex", minHeight: "unset" }}>
 
       {/* ── Left — Aryan SVG ── */}
-      <div style={{ width: "38%", flexShrink: 0, position: "relative", overflow: "hidden", zIndex: 1 }}>
+      <div style={{ width: "38%", flexShrink: 0, position: "relative", overflow: "hidden" }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/aryan.svg"
@@ -88,7 +38,7 @@ export default function OpeningScene() {
       </div>
 
       {/* ── Right — sliding panels ── */}
-      <div style={{ flex: 1, overflow: "hidden", position: "relative", display: "flex", flexDirection: "column", justifyContent: "center", zIndex: 1 }}>
+      <div style={{ flex: 1, overflow: "hidden", position: "relative", display: "flex", flexDirection: "column", justifyContent: "center" }}>
 
         {/* Radial amber glow behind text */}
         <div style={{
@@ -255,23 +205,9 @@ export default function OpeningScene() {
         </div>
 
         {/* Title */}
-        <div style={{ position: "absolute", top: "32px", right: "60px", textAlign: "right" }}>
-          <h1 style={{
-            fontFamily: "var(--font-cinzel)", fontSize: "1.5rem", fontWeight: 700,
-            background: "linear-gradient(90deg, var(--accent-gold), var(--accent-gold-light), var(--accent-gold))",
-            backgroundSize: "200% auto",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-            animation: "shimmer 4s linear infinite",
-          }}>
-            Aryan&apos;s Quest
-          </h1>
-          <p style={{ fontFamily: "var(--font-crimson)", fontSize: "0.85rem", color: "var(--text-muted)", fontStyle: "italic" }}>
-            The Road to Rebuild Nalanda
-          </p>
-        </div>
+        <GameTitle style={{ position: "absolute", top: "32px", right: "60px" }} />
 
       </div>
-    </div>
+    </PageShell>
   );
 }

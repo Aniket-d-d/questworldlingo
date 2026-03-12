@@ -10,7 +10,7 @@ interface KingdomCardProps {
 }
 
 const STATUS_STYLES: Record<KingdomStatus, string> = {
-  locked: "opacity-40 cursor-not-allowed",
+  locked: "cursor-not-allowed",
   available: "cursor-pointer hover:border-[var(--accent-gold)] hover:bg-[var(--bg-secondary)]",
   in_progress: "cursor-pointer border-[var(--accent-gold)] bg-[var(--bg-secondary)]",
   completed: "cursor-pointer border-green-800 bg-[var(--bg-secondary)] opacity-80",
@@ -48,7 +48,8 @@ export default function KingdomCard({
   return (
     <div
       onClick={status !== "locked" ? onClick : undefined}
-      className={`relative border border-[var(--border-gold)] bg-[var(--bg-card)] p-5 transition-all duration-300 ${STATUS_STYLES[status]}`}
+      className={`relative border border-[var(--border-gold)] bg-[var(--bg-card)] transition-all duration-300 ${STATUS_STYLES[status]}`}
+      style={{ padding: "32px 36px" }}
     >
       {/* Kingdom number */}
       <span
@@ -106,8 +107,8 @@ export default function KingdomCard({
 
       {/* Locked overlay */}
       {status === "locked" && (
-        <div className="absolute inset-0 flex items-center justify-center">
-          <span className="text-2xl opacity-30">🔒</span>
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <span className="text-2xl opacity-50">🔒</span>
         </div>
       )}
     </div>

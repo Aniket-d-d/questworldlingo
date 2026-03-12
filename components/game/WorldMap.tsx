@@ -4,9 +4,10 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { KingdomStatus } from "@/types";
 import { KINGDOMS } from "@/constants/story";
-import Image from "next/image";
 import KingdomCard from "./KingdomCard";
 import PlayerSetup from "./PlayerSetup";
+import PageShell from "@/components/ui/PageShell";
+import GameHeader from "@/components/ui/GameHeader";
 
 interface PlayerState {
   name: string;
@@ -69,74 +70,70 @@ export default function WorldMap() {
   ).length;
 
   return (
-    <div className="min-h-screen bg-[var(--bg-primary)] px-4 py-8 md:px-8">
-      {/* Header */}
-      <div className="max-w-5xl mx-auto">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 border-b border-[var(--border-gold)] pb-6">
-          <div className="flex items-end gap-4">
-            <Image src="/aryan.svg" alt="Aryan" width={70} height={112} />
-            <div>
-              <h1
-                className="text-2xl md:text-3xl font-bold text-[var(--accent-gold-light)] glow-gold"
-                style={{ fontFamily: "var(--font-cinzel)" }}
-              >
-                Aryan&apos;s Quest
-              </h1>
-              <p className="text-[var(--text-muted)] text-sm mt-1 italic"
-                style={{ fontFamily: "var(--font-crimson)" }}>
-                Welcome, {player.name}
-              </p>
-            </div>
+    <PageShell>
+      <GameHeader playerName={player.name} />
+
+      <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "40px 32px 80px", display: "flex", flexDirection: "column", alignItems: "center" }}>
+
+        {/* ── Stats bar ── */}
+        <div
+          className="stagger-line"
+          style={{
+            display: "flex", gap: "48px", alignItems: "center", justifyContent: "center",
+            padding: "20px 48px", border: "1px solid var(--border-gold)",
+            marginBottom: "48px", animationDelay: "0.3s",
+          }}
+        >
+          <div style={{ textAlign: "center" }}>
+            <p style={{ fontFamily: "var(--font-cinzel)", fontSize: "2rem", fontWeight: 700, color: "var(--accent-gold-light)" }}>
+              {completedCount} / 6
+            </p>
+            <p style={{ fontFamily: "var(--font-cinzel)", fontSize: "0.7rem", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.15em", marginTop: "4px" }}>
+              Kingdoms
+            </p>
           </div>
-
-          <div className="flex items-center gap-6">
-            {/* Progress */}
-            <div className="text-center">
-              <p className="text-[var(--accent-gold-light)] text-xl font-bold"
-                style={{ fontFamily: "var(--font-cinzel)" }}>
-                {completedCount} / 6
-              </p>
-              <p className="text-[var(--text-muted)] text-xs uppercase tracking-wide"
-                style={{ fontFamily: "var(--font-cinzel)" }}>
-                Kingdoms
-              </p>
-            </div>
-
-            {/* Wisdom Tokens */}
-            <div className="text-center">
-              <p className="text-[var(--accent-gold-light)] text-xl font-bold"
-                style={{ fontFamily: "var(--font-cinzel)" }}>
-                {player.wisdomTokens}
-              </p>
-              <p className="text-[var(--text-muted)] text-xs uppercase tracking-wide"
-                style={{ fontFamily: "var(--font-cinzel)" }}>
-                Wisdom
-              </p>
-            </div>
-
-            {/* Knowledge Chest */}
-            <button
-              onClick={() => router.push("/game/chest")}
-              className="px-4 py-2 border border-[var(--border-gold)] text-[var(--text-secondary)] hover:border-[var(--accent-gold)] hover:text-[var(--accent-gold-light)] transition-all text-xs tracking-widest uppercase cursor-pointer"
-              style={{ fontFamily: "var(--font-cinzel)" }}
-            >
-              Knowledge Chest
-            </button>
+          <div style={{ width: "1px", height: "40px", backgroundColor: "var(--border-gold)" }} />
+          <div style={{ textAlign: "center" }}>
+            <p style={{ fontFamily: "var(--font-cinzel)", fontSize: "2rem", fontWeight: 700, color: "var(--accent-gold-light)" }}>
+              {player.wisdomTokens}
+            </p>
+            <p style={{ fontFamily: "var(--font-cinzel)", fontSize: "0.7rem", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.15em", marginTop: "4px" }}>
+              Wisdom Tokens
+            </p>
           </div>
-        </div>
-
-        {/* Story reminder */}
-        <div className="mb-8 text-center">
-          <p
-            className="text-[var(--text-muted)] text-sm italic max-w-xl mx-auto leading-relaxed"
-            style={{ fontFamily: "var(--font-crimson)" }}
+          <div style={{ width: "1px", height: "40px", backgroundColor: "var(--border-gold)" }} />
+          <button
+            onClick={() => router.push("/game/chest")}
+            style={{
+              padding: "10px 28px",
+              border: "1px solid var(--border-gold)",
+              color: "var(--text-secondary)",
+              background: "transparent",
+              fontFamily: "var(--font-cinzel)",
+              fontSize: "0.8rem",
+              letterSpacing: "0.12em",
+              textTransform: "uppercase",
+              cursor: "pointer",
+              transition: "all 0.3s",
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.borderColor = "var(--accent-gold)"; e.currentTarget.style.color = "var(--accent-gold-light)"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--border-gold)"; e.currentTarget.style.color = "var(--text-secondary)"; }}
           >
-            &ldquo;Don&apos;t mourn it. Rebuild it.&rdquo; — The Last Scholar of Nalanda
-          </p>
+            Knowledge Chest
+          </button>
         </div>
 
-        {/* Kingdom grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {/* ── Kingdom grid ── */}
+        <div
+          className="stagger-line"
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(3, 1fr)",
+            gap: "20px",
+            width: "100%",
+            animationDelay: "0.5s",
+          }}
+        >
           {KINGDOMS.map((kingdom) => (
             <KingdomCard
               key={kingdom.id}
@@ -148,12 +145,23 @@ export default function WorldMap() {
           ))}
         </div>
 
-        {/* Footer note */}
-        <p className="text-center text-[var(--text-muted)] text-xs mt-10 tracking-wide uppercase"
-          style={{ fontFamily: "var(--font-cinzel)" }}>
+        {/* ── Footer ── */}
+        <p
+          className="stagger-line"
+          style={{
+            fontFamily: "var(--font-cinzel)",
+            fontSize: "0.75rem",
+            color: "var(--text-muted)",
+            textTransform: "uppercase",
+            letterSpacing: "0.2em",
+            marginTop: "56px",
+            animationDelay: "0.6s",
+          }}
+        >
           1203 AD · Six Kingdoms · One Purpose
         </p>
+
       </div>
-    </div>
+    </PageShell>
   );
 }

@@ -6,7 +6,7 @@ export const MONK_DIALOGUE = {
     "He said walking its corridors felt like touching everything humanity had ever known.",
     "Then the news reached our village. Foreign invaders. Fire. No survivors.",
     "My father was one of the scholars who could not escape.",
-    "I left home the same day the news arrived. I ran. I walked. I ran again.",
+    "I left home the same day the news arrived.",
     "Months later, I arrived at the gates. Nothing remained but ash and silence.",
     "Nine million manuscripts. Gone. Every word my father ever read — gone.",
     "But knowledge does not vanish. It moves. It hides. It waits.",
