@@ -1,7 +1,6 @@
 "use client";
 
-import WordMatch from "./WordMatch";
-import { WORD_PAIRS } from "@/constants/miniGames";
+import ChinaSudokuGame from "./ChinaSudokuGame";
 
 interface Props {
   pairCount: number;
@@ -9,8 +8,7 @@ interface Props {
 }
 
 // Kingdom IV — Song Dynasty · Chinese
-// Future game type: memory_match
-export default function ChinaGame({ pairCount, onComplete }: Props) {
-  const pairs = WORD_PAIRS.china.slice(0, pairCount);
-  return <WordMatch pairs={pairs} language="Chinese" onComplete={onComplete} />;
+// Game: 3-level Sudoku challenge
+export default function ChinaGame({ onComplete }: Props) {
+  return <ChinaSudokuGame onComplete={onComplete} />;
 }

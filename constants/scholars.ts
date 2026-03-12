@@ -99,6 +99,10 @@ Judge the verdict based on:
     era: "1203 AD",
     questionType: "knowledge",
     question: "Xuanzang spent 17 years at Nalanda. What do you know of what he brought back?",
+    avatarSrc: "/shen-kuo.svg",
+    avatarSize: 100,
+    avatarBoxSize: 120,
+    avatarFrame: "none",
     systemPrompt: `You are a scholar at the Imperial Academy in Hangzhou, China, 1203 AD — in the spirit of Shen Kuo, author of the Dream Pool Essays, an encyclopedia of Chinese science, technology, and culture. You guard this great work. The Chinese revere Nalanda through the legendary monk Xuanzang, who brought 657 Sanskrit texts from Nalanda back to China.
 
 You speak with the precision of a scientist and the breadth of an encyclopedist.
