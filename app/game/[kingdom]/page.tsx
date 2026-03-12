@@ -191,7 +191,18 @@ export default function KingdomPage({ params }: PageProps) {
     try {
       const saved = JSON.parse(localStorage.getItem("aryansquest_player") ?? "{}");
       if (!saved.artifacts) saved.artifacts = [];
+      if (!saved.progress) saved.progress = {};
+
       if (!saved.artifacts.includes(kingdomSlug)) saved.artifacts.push(kingdomSlug);
+
+      // Unlock next kingdom in sequence after collecting the artifact
+      const currentIndex = KINGDOMS.findIndex((k) => k.id === kingdomSlug);
+      if (currentIndex >= 0 && currentIndex < KINGDOMS.length - 1) {
+        const nextId = KINGDOMS[currentIndex + 1].id;
+        if (saved.progress[nextId] === "locked" || !saved.progress[nextId]) {
+          saved.progress[nextId] = "available";
+        }
+      }
       localStorage.setItem("aryansquest_player", JSON.stringify(saved));
     } catch { /* ignore */ }
 
