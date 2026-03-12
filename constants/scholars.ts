@@ -5,6 +5,10 @@ export interface ScholarConfig {
   questionType: "justification" | "knowledge" | "personal";
   question: string;
   systemPrompt: string;
+  avatarSrc?: string;
+  avatarSize?: number;
+  avatarBoxSize?: number;
+  avatarFrame?: "boxed" | "none";
 }
 
 export const SCHOLAR_CONFIGS: Record<string, ScholarConfig> = {
@@ -14,6 +18,10 @@ export const SCHOLAR_CONFIGS: Record<string, ScholarConfig> = {
     era: "1203 AD",
     questionType: "justification",
     question: "Why do you deserve the Nalanda-Srivijaya Correspondence?",
+    avatarSrc: "/dharmakirti.svg",
+    avatarSize: 100,
+    avatarBoxSize: 120,
+    avatarFrame: "none",
     systemPrompt: `You are Dharmakirti, a senior Buddhist monk and scholar of the Srivijaya Empire in 1203 AD. You guard the ancient Nalanda-Srivijaya Correspondence — letters exchanged between Nalanda University and King Balaputradeva of Srivijaya. Srivijayan monks studied at Nalanda for generations.
 
 You speak with calm authority and deep reverence for Nalanda. You are testing this young Indian boy who claims to want to rebuild Nalanda.
