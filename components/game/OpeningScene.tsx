@@ -38,7 +38,7 @@ export default function OpeningScene() {
     <>Months later, I arrived at the gates. Nothing remained but ash and silence.</>,
     <>Nine million manuscripts. Gone. Every word my father ever read — gone.</>,
     <>But knowledge does not vanish. It moves. It hides. It waits.</>,
-    <>I know where it went. And I am going to bring it all back — for him.</>,
+    <>Then it's my mission now — to gather what was lost, and rebuild Nalanda. For my father.</>,
   ];
 
   const selectedLang =
