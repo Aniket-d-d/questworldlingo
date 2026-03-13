@@ -272,8 +272,8 @@ export default function KingdomPage({ params }: PageProps) {
             )}
           </div>
 
-          {/* Chat messages */}
-          <div style={{ flex: 1, overflowY: "auto", display: "flex", flexDirection: "column", gap: "12px", paddingRight: "4px", marginBottom: "14px" }}>
+          {/* Chat messages (excluded from translation for now) */}
+          <div data-lingo-skip style={{ flex: 1, overflowY: "auto", display: "flex", flexDirection: "column", gap: "12px", paddingRight: "4px", marginBottom: "14px" }}>
             {messages.map((msg, i) => (
               <div key={i} style={{
                 display: "flex",
@@ -331,7 +331,7 @@ export default function KingdomPage({ params }: PageProps) {
 
           {/* Input — always available until artifact collected */}
           {!artifactCollected ? (
-            <form onSubmit={(e) => { e.preventDefault(); handleSend(); }} style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+            <form data-lingo-skip onSubmit={(e) => { e.preventDefault(); handleSend(); }} style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
               <textarea
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
@@ -375,7 +375,7 @@ export default function KingdomPage({ params }: PageProps) {
               </button>
             </form>
           ) : (
-            <p style={{
+            <p data-lingo-skip style={{
               fontFamily: "var(--font-cinzel)",
               fontSize: "0.65rem",
               color: "var(--text-muted)",

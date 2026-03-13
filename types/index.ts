@@ -1,3 +1,5 @@
+import type { ReactNode } from "react";
+
 export type KingdomId =
   | "srivijaya"
   | "japan"
@@ -13,12 +15,12 @@ export type Difficulty = "easy" | "normal" | "hard";
 
 export interface Kingdom {
   id: KingdomId;
-  name: string;
-  location: string;
-  language: string;
-  historicalHook: string;
-  artifact: string;
-  scholarName: string;
+  name: ReactNode;
+  location: ReactNode;
+  language: ReactNode;
+  historicalHook: ReactNode;
+  artifact: ReactNode;
+  scholarName: ReactNode;
   miniGame: MiniGameType;
 }
 

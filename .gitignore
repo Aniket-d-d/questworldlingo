@@ -48,3 +48,6 @@ PROJECTIDEA-SUMMARY.txt
 
 # Claude Code local data
 .claude
+
+# Lingo.dev local metadata/cache
+lingo/

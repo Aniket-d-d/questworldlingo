@@ -1,3 +1,5 @@
+import type { ReactNode } from "react";
+
 export interface ScholarConfig {
   name: string;
   kingdom: string;
@@ -150,40 +152,40 @@ For Tibet, be generous with WORTHY — this is a personal question with no wrong
   },
 };
 
-export const TRAVEL_LORE: Record<string, string[]> = {
+export const TRAVEL_LORE: Record<string, ReactNode[]> = {
   srivijaya: [
-    "You board a merchant vessel at the port of Tamralipti.",
-    "For forty days you sail southeast across the Bay of Bengal.",
-    "The ship docks at Srivijaya — a magnificent maritime empire built on trade and Buddhist scholarship.",
-    "King Balaputradeva once funded an entire monastery at Nalanda.",
-    "His monks studied there for generations. They may still carry its memory.",
+    <>You board a merchant vessel at the port of Tamralipti.</>,
+    <>For forty days you sail southeast across the Bay of Bengal.</>,
+    <>The ship docks at Srivijaya — a magnificent maritime empire built on trade and Buddhist scholarship.</>,
+    <>King Balaputradeva once funded an entire monastery at Nalanda.</>,
+    <>His monks studied there for generations. They may still carry its memory.</>,
   ],
   japan: [
-    "From Srivijaya, you travel north along ancient sea routes.",
-    "After weeks at sea, the misty islands of Japan appear on the horizon.",
-    "You arrive at the imperial capital of Kyoto — a city of temples, scholars, and ceremony.",
-    "The monk Kukai once brought Nalanda's wisdom here from Tang China.",
-    "That wisdom lives in these halls still.",
+    <>From Srivijaya, you travel north along ancient sea routes.</>,
+    <>After weeks at sea, the misty islands of Japan appear on the horizon.</>,
+    <>You arrive at the imperial capital of Kyoto — a city of temples, scholars, and ceremony.</>,
+    <>The monk Kukai once brought Nalanda's wisdom here from Tang China.</>,
+    <>That wisdom lives in these halls still.</>,
   ],
   korea: [
-    "A Korean trading vessel carries you north across the Korea Strait.",
-    "You arrive in the Goryeo Kingdom — a civilization besieged by the Mongols.",
-    "In response, the monks here are carving the entire Buddhist canon onto 81,000 wooden blocks.",
-    "It will take 16 years. They are halfway through.",
-    "Much of what they carve traces back to Nalanda.",
+    <>A Korean trading vessel carries you north across the Korea Strait.</>,
+    <>You arrive in the Goryeo Kingdom — a civilization besieged by the Mongols.</>,
+    <>In response, the monks here are carving the entire Buddhist canon onto 81,000 wooden blocks.</>,
+    <>It will take 16 years. They are halfway through.</>,
+    <>Much of what they carve traces back to Nalanda.</>,
   ],
   china: [
-    "The Yellow Sea crossing brings you to the great Song Dynasty.",
-    "You arrive in Hangzhou — perhaps the most magnificent city on Earth in 1203 AD.",
-    "A million people. Imperial gardens. The world's first paper money.",
-    "The monk Xuanzang walked from here to Nalanda 600 years ago.",
-    "He spent 17 years there. He brought back 657 texts.",
+    <>The Yellow Sea crossing brings you to the great Song Dynasty.</>,
+    <>You arrive in Hangzhou — perhaps the most magnificent city on Earth in 1203 AD.</>,
+    <>A million people. Imperial gardens. The world's first paper money.</>,
+    <>The monk Xuanzang walked from here to Nalanda 600 years ago.</>,
+    <>He spent 17 years there. He brought back 657 texts.</>,
   ],
   tibet: [
-    "The final journey takes you high into the Himalayas.",
-    "Thin air. Silence. The roof of the world.",
-    "Tibetan monks who studied at Nalanda carried thousands of manuscripts home before the fire.",
-    "They preserved Nalanda's soul for 40 years, waiting for someone to come.",
-    "That someone is you.",
+    <>The final journey takes you high into the Himalayas.</>,
+    <>Thin air. Silence. The roof of the world.</>,
+    <>Tibetan monks who studied at Nalanda carried thousands of manuscripts home before the fire.</>,
+    <>They preserved Nalanda's soul for 40 years, waiting for someone to come.</>,
+    <>That someone is you.</>,
   ],
 };

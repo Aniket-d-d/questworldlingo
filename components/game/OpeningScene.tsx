@@ -1,17 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { OPENING_NARRATION, MONK_DIALOGUE } from "@/constants/story";
 import PageShell from "@/components/ui/PageShell";
 import GameTitle from "@/components/ui/GameTitle";
 import { DEFAULT_LANGUAGE, LANGUAGES } from "@/constants/languages";
+import type { LocaleCode } from "lingo.dev/spec";
+import { useLingoContext } from "@lingo.dev/compiler/react";
 
 export default function OpeningScene() {
   const router = useRouter();
   const [panel, setPanel] = useState(0);
   const [panelKey, setPanelKey] = useState(0);
-  const [selectedLang, setSelectedLang] = useState(DEFAULT_LANGUAGE);
+  const { locale, setLocale } = useLingoContext();
   const [langOpen, setLangOpen] = useState(false);
 
   function goToPanel(n: number) {
@@ -22,16 +24,11 @@ export default function OpeningScene() {
   const lines0 = OPENING_NARRATION;
   const lines1 = MONK_DIALOGUE.lines;
 
-  useEffect(() => {
-    const saved = localStorage.getItem("aryansquest_lang");
-    if (saved && LANGUAGES.some((l) => l.code === saved)) {
-      setSelectedLang(saved);
-    }
-  }, []);
+  const selectedLang =
+    LANGUAGES.find((l) => l.code === locale) ?? LANGUAGES.find((l) => l.code === DEFAULT_LANGUAGE);
 
-  function handleSelectLanguage(code: string) {
-    setSelectedLang(code);
-    localStorage.setItem("aryansquest_lang", code);
+  function handleSelectLanguage(code: LocaleCode) {
+    setLocale(code);
     setLangOpen(false);
   }
 
@@ -253,7 +250,7 @@ export default function OpeningScene() {
               onMouseEnter={(e) => { e.currentTarget.style.color = "var(--accent-gold-light)"; }}
               onMouseLeave={(e) => { e.currentTarget.style.color = "var(--text-muted)"; }}
             >
-              {LANGUAGES.find((l) => l.code === selectedLang)?.label}
+              {selectedLang?.label ?? "English"}
               <span style={{ fontSize: "0.6rem" }}>{langOpen ? "▲" : "▼"}</span>
             </button>
 
@@ -278,15 +275,15 @@ export default function OpeningScene() {
                       fontFamily: "var(--font-cinzel)",
                       fontSize: "0.7rem",
                       letterSpacing: "0.08em",
-                      color: lang.code === selectedLang ? "var(--accent-gold-light)" : "var(--text-muted)",
+                      color: lang.code === selectedLang?.code ? "var(--accent-gold-light)" : "var(--text-muted)",
                       cursor: "pointer",
                       transition: "all 0.2s",
-                      backgroundColor: lang.code === selectedLang ? "var(--bg-secondary)" : "transparent",
+                      backgroundColor: lang.code === selectedLang?.code ? "var(--bg-secondary)" : "transparent",
                     }}
                     onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "var(--bg-secondary)"; e.currentTarget.style.color = "var(--accent-gold-light)"; }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = lang.code === selectedLang ? "var(--bg-secondary)" : "transparent";
-                      e.currentTarget.style.color = lang.code === selectedLang ? "var(--accent-gold-light)" : "var(--text-muted)";
+                      e.currentTarget.style.backgroundColor = lang.code === selectedLang?.code ? "var(--bg-secondary)" : "transparent";
+                      e.currentTarget.style.color = lang.code === selectedLang?.code ? "var(--accent-gold-light)" : "var(--text-muted)";
                     }}
                   >
                     {lang.label}

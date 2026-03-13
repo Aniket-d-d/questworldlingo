@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { Kingdom, KingdomStatus } from "@/types";
 
 interface KingdomCardProps {
@@ -16,11 +17,11 @@ const STATUS_STYLES: Record<KingdomStatus, string> = {
   completed: "cursor-pointer border-green-800 bg-[var(--bg-secondary)] opacity-80",
 };
 
-const STATUS_LABEL: Record<KingdomStatus, string> = {
-  locked: "Locked",
-  available: "Available",
-  in_progress: "In Progress",
-  completed: "Completed",
+const STATUS_LABEL: Record<KingdomStatus, ReactNode> = {
+  locked: <>Locked</>,
+  available: <>Available</>,
+  in_progress: <>In Progress</>,
+  completed: <>Completed</>,
 };
 
 const STATUS_DOT_COLOR: Record<KingdomStatus, string> = {

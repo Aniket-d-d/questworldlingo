@@ -1,4 +1,11 @@
-export const LANGUAGES = [
+import type { LocaleCode } from "lingo.dev/spec";
+
+export interface LanguageOption {
+  code: LocaleCode;
+  label: string;
+}
+
+export const LANGUAGES: LanguageOption[] = [
   { code: "en", label: "English" },
   { code: "de", label: "German" },
   { code: "fr", label: "French" },
@@ -10,4 +17,4 @@ export const LANGUAGES = [
   { code: "ru", label: "Russian" },
 ];
 
-export const DEFAULT_LANGUAGE = "en";
+export const DEFAULT_LANGUAGE: LocaleCode = "en";

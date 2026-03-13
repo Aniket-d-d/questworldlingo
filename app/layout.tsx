@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Cinzel, Crimson_Text } from "next/font/google";
+import { LingoProvider } from "@lingo.dev/compiler/react";
 import "./globals.css";
 
 const cinzel = Cinzel({
@@ -27,10 +28,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={`${cinzel.variable} ${crimsonText.variable} antialiased`}>
-        {children}
-      </body>
-    </html>
+    <LingoProvider>
+      <html lang="en">
+        <body className={`${cinzel.variable} ${crimsonText.variable} antialiased`}>
+          {children}
+        </body>
+      </html>
+    </LingoProvider>
   );
 }
