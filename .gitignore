@@ -43,5 +43,8 @@ next-env.d.ts
 # hackathon report (local only)
 Aryanquest_HackthonReport.txt
 
+# local project notes (not for repo)
+PROJECTIDEA-SUMMARY.txt
+
 # Claude Code local data
 .claude
