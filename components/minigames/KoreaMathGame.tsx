@@ -3,6 +3,9 @@
 import { useEffect, useRef, useState } from "react";
 
 interface Props {
+  difficulty?: 1 | 2 | 3;
+  currentRound?: number;
+  totalRounds?: number;
   onComplete: (score: number, total: number) => void;
 }
 
@@ -76,7 +79,9 @@ function generateProblem(ops: Op[]): Problem {
   return generateDiv();
 }
 
-export default function KoreaMathGame({ onComplete }: Props) {
+export default function KoreaMathGame({ difficulty, currentRound, totalRounds, onComplete }: Props) {
+  // When difficulty is set, only play that single level; otherwise progress through all 3
+  const activeLevels = difficulty ? [LEVELS[difficulty - 1]] : LEVELS;
   const [gameState, setGameState] = useState<"idle" | "running" | "complete">("idle");
   const [levelIndex, setLevelIndex] = useState(0);
   const [problems, setProblems] = useState<Problem[]>([]);
@@ -91,7 +96,7 @@ export default function KoreaMathGame({ onComplete }: Props) {
   const tickTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
-    const level = LEVELS[levelIndex];
+    const level = activeLevels[levelIndex];
     const nextProblems = Array.from({ length: PROBLEMS_PER_LEVEL }, () => generateProblem(level.ops));
     setProblems(nextProblems);
     setCurrent(0);
@@ -161,7 +166,7 @@ export default function KoreaMathGame({ onComplete }: Props) {
           setInput("");
           setFeedback("idle");
         }, 450);
-      } else if (levelIndex < LEVELS.length - 1) {
+      } else if (levelIndex < activeLevels.length - 1) {
         setStatus("level_complete");
         setCompletedLevels((prev) => {
           const next = new Set(prev);
@@ -180,14 +185,14 @@ export default function KoreaMathGame({ onComplete }: Props) {
         });
         setGameState("complete");
         if (tickTimerRef.current) clearInterval(tickTimerRef.current);
-        advanceTimerRef.current = setTimeout(() => onComplete(LEVELS.length, LEVELS.length), 700);
+        advanceTimerRef.current = setTimeout(() => onComplete(activeLevels.length, activeLevels.length), 700);
       }
     } else {
       setFeedback("wrong");
     }
   }
 
-  const level = LEVELS[levelIndex];
+  const level = activeLevels[levelIndex];
   const problem = problems[current];
 
   return (
@@ -233,9 +238,27 @@ export default function KoreaMathGame({ onComplete }: Props) {
 
       {gameState !== "idle" && (
         <>
-          {/* Level tracker */}
+          {/* Level tracker or Round progress */}
           <div style={{ display: "flex", justifyContent: "center", gap: "12px", marginBottom: "10px" }}>
-            {LEVELS.map((lvl, i) => {
+            {currentRound && totalRounds ? (
+              Array.from({ length: totalRounds }, (_, i) => {
+                const done = i + 1 < currentRound;
+                const active = i + 1 === currentRound;
+                const color = done ? "var(--accent-gold)" : active ? "var(--accent-gold-light)" : "var(--text-muted)";
+                return (
+                  <div key={i} style={{
+                    width: "26px", height: "26px",
+                    border: `1px solid ${color}`,
+                    background: done ? "rgba(201,146,42,0.15)" : "transparent",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    fontFamily: "var(--font-cinzel)", fontSize: "0.62rem",
+                    color, transition: "all 0.4s",
+                  }}>
+                    {done ? "✓" : i + 1}
+                  </div>
+                );
+              })
+            ) : activeLevels.map((lvl, i) => {
               const isCurrent = i === levelIndex;
               const isComplete = completedLevels.has(i) || i < levelIndex;
               const color = isComplete ? "var(--accent-gold)" : isCurrent ? "var(--accent-gold-light)" : "var(--text-muted)";
@@ -259,6 +282,7 @@ export default function KoreaMathGame({ onComplete }: Props) {
           </div>
 
           {/* Timer */}
+
           <div style={{ textAlign: "center", marginBottom: "12px" }}>
             <p style={{
               fontFamily: "var(--font-cinzel)",

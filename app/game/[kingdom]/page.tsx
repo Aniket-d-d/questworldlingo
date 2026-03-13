@@ -69,14 +69,39 @@ const JAPAN_BETWEEN_ROUNDS: Record<number, string> = {
   2: "Again the regions fall into order. One final trial. Do not let your focus break now.",
 };
 
+const KOREA_CHOICES = [
+  {
+    level: 1 as const,
+    text: "Because Nalanda's wisdom lives in those blocks as much as in any Indian text. I am here to carry it home, not to claim it as mine.",
+    scholarResponse: "Nalanda's wisdom and our carving are not the same thing. But your humility is noted. I will test your arithmetic — the same precision a monk uses to count eighty-one thousand blocks. Begin with the simplest sums.",
+  },
+  {
+    level: 2 as const,
+    text: "Because preservation is only half the work. The other half is transmission. You carved so knowledge would not die — I am here to ensure it continues to travel.",
+    scholarResponse: "A reasoned answer. Transmission requires both the scholar who copies and the carrier who travels. I will test you as a scholar — addition and subtraction, the tools of every scribe. Prove your precision.",
+  },
+  {
+    level: 3 as const,
+    text: "Because I will not stop until every surviving text from Nalanda's lineage is gathered. This excerpt belongs in that gathering — and nothing will deter me.",
+    scholarResponse: "Sixteen years of carving taught us that determination alone does not make a scholar. Let us see if your mind is as relentless as your claim. Multiplication and division — the highest test. Prove yourself.",
+  },
+];
+
+const KOREA_BETWEEN_ROUNDS: Record<number, string> = {
+  1: "Your arithmetic is sound. The blocks do not forgive imprecision — neither do I. Once more.",
+  2: "Again you meet the standard. One final trial. Do not let the numbers slip now.",
+};
+
 // Lookup maps for kingdoms that use the choice system
 const KINGDOM_CHOICES: Record<string, typeof SRIVIJAYA_CHOICES> = {
   srivijaya: SRIVIJAYA_CHOICES,
   japan: JAPAN_CHOICES,
+  korea: KOREA_CHOICES,
 };
 const KINGDOM_BETWEEN_ROUNDS: Record<string, Record<number, string>> = {
   srivijaya: SRIVIJAYA_BETWEEN_ROUNDS,
   japan: JAPAN_BETWEEN_ROUNDS,
+  korea: KOREA_BETWEEN_ROUNDS,
 };
 
 // Scholar's judgment after the player's first answer
