@@ -4,8 +4,6 @@ import { useEffect, useRef, useState } from "react";
 
 interface Props {
   difficulty?: 1 | 2 | 3;
-  currentRound?: number;
-  totalRounds?: number;
   onComplete: (score: number, total: number) => void;
 }
 
@@ -79,9 +77,11 @@ function generateProblem(ops: Op[]): Problem {
   return generateDiv();
 }
 
-export default function KoreaMathGame({ difficulty, currentRound, totalRounds, onComplete }: Props) {
-  // When difficulty is set, only play that single level; otherwise progress through all 3
-  const activeLevels = difficulty ? [LEVELS[difficulty - 1]] : LEVELS;
+const TIME_LIMITS: Record<number, number> = { 1: 60, 2: 45, 3: 30 };
+
+export default function KoreaMathGame({ difficulty, onComplete }: Props) {
+  const activeLevels = LEVELS;
+  const timeLimit = difficulty ? TIME_LIMITS[difficulty] : TOTAL_TIME_SECONDS;
   const [gameState, setGameState] = useState<"idle" | "running" | "complete">("idle");
   const [levelIndex, setLevelIndex] = useState(0);
   const [problems, setProblems] = useState<Problem[]>([]);
@@ -89,7 +89,7 @@ export default function KoreaMathGame({ difficulty, currentRound, totalRounds, o
   const [input, setInput] = useState("");
   const [feedback, setFeedback] = useState<"idle" | "wrong" | "correct">("idle");
   const [status, setStatus] = useState<"playing" | "level_complete" | "complete">("playing");
-  const [timeLeft, setTimeLeft] = useState(TOTAL_TIME_SECONDS);
+  const [timeLeft, setTimeLeft] = useState(timeLimit);
   const [completedLevels, setCompletedLevels] = useState<Set<number>>(new Set());
   const [showTimeoutMessage, setShowTimeoutMessage] = useState(false);
   const advanceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -136,7 +136,7 @@ export default function KoreaMathGame({ difficulty, currentRound, totalRounds, o
           setCompletedLevels(new Set());
           setStatus("playing");
           setShowTimeoutMessage(true);
-          return TOTAL_TIME_SECONDS;
+          return timeLimit;
         }
         return t - 1;
       });
@@ -148,7 +148,7 @@ export default function KoreaMathGame({ difficulty, currentRound, totalRounds, o
     setGameState("running");
     setLevelIndex(0);
     setCompletedLevels(new Set());
-    setTimeLeft(TOTAL_TIME_SECONDS);
+    setTimeLeft(timeLimit);
   }
 
   function handleSubmit(e: React.FormEvent) {
@@ -238,27 +238,9 @@ export default function KoreaMathGame({ difficulty, currentRound, totalRounds, o
 
       {gameState !== "idle" && (
         <>
-          {/* Level tracker or Round progress */}
+          {/* Level tracker */}
           <div style={{ display: "flex", justifyContent: "center", gap: "12px", marginBottom: "10px" }}>
-            {currentRound && totalRounds ? (
-              Array.from({ length: totalRounds }, (_, i) => {
-                const done = i + 1 < currentRound;
-                const active = i + 1 === currentRound;
-                const color = done ? "var(--accent-gold)" : active ? "var(--accent-gold-light)" : "var(--text-muted)";
-                return (
-                  <div key={i} style={{
-                    width: "26px", height: "26px",
-                    border: `1px solid ${color}`,
-                    background: done ? "rgba(201,146,42,0.15)" : "transparent",
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                    fontFamily: "var(--font-cinzel)", fontSize: "0.62rem",
-                    color, transition: "all 0.4s",
-                  }}>
-                    {done ? "✓" : i + 1}
-                  </div>
-                );
-              })
-            ) : activeLevels.map((lvl, i) => {
+            {activeLevels.map((lvl, i) => {
               const isCurrent = i === levelIndex;
               const isComplete = completedLevels.has(i) || i < levelIndex;
               const color = isComplete ? "var(--accent-gold)" : isCurrent ? "var(--accent-gold-light)" : "var(--text-muted)";

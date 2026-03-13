@@ -73,24 +73,19 @@ const KOREA_CHOICES = [
   {
     level: 1 as const,
     text: "Because Nalanda's wisdom lives in those blocks as much as in any Indian text. I am here to carry it home, not to claim it as mine.",
-    scholarResponse: "Nalanda's wisdom and our carving are not the same thing. But your humility is noted. I will test your arithmetic — the same precision a monk uses to count eighty-one thousand blocks. Begin with the simplest sums.",
+    scholarResponse: "Humility noted. I will give you sixty seconds — enough time for a careful mind. Three levels of arithmetic, each harder than the last. Begin when you are ready.",
   },
   {
     level: 2 as const,
     text: "Because preservation is only half the work. The other half is transmission. You carved so knowledge would not die — I am here to ensure it continues to travel.",
-    scholarResponse: "A reasoned answer. Transmission requires both the scholar who copies and the carrier who travels. I will test you as a scholar — addition and subtraction, the tools of every scribe. Prove your precision.",
+    scholarResponse: "A reasoned answer. Forty-five seconds. A scribe who copies without haste still copies precisely. Prove that your mind moves with equal care under pressure.",
   },
   {
     level: 3 as const,
     text: "Because I will not stop until every surviving text from Nalanda's lineage is gathered. This excerpt belongs in that gathering — and nothing will deter me.",
-    scholarResponse: "Sixteen years of carving taught us that determination alone does not make a scholar. Let us see if your mind is as relentless as your claim. Multiplication and division — the highest test. Prove yourself.",
+    scholarResponse: "Then you will not mind thirty seconds. We carved eighty-one thousand blocks under Mongol threat. You will solve three levels of arithmetic under time. Show me your resolve.",
   },
 ];
-
-const KOREA_BETWEEN_ROUNDS: Record<number, string> = {
-  1: "Your arithmetic is sound. The blocks do not forgive imprecision — neither do I. Once more.",
-  2: "Again you meet the standard. One final trial. Do not let the numbers slip now.",
-};
 
 // Lookup maps for kingdoms that use the choice system
 const KINGDOM_CHOICES: Record<string, typeof SRIVIJAYA_CHOICES> = {
@@ -98,10 +93,10 @@ const KINGDOM_CHOICES: Record<string, typeof SRIVIJAYA_CHOICES> = {
   japan: JAPAN_CHOICES,
   korea: KOREA_CHOICES,
 };
+// Only kingdoms that play multiple rounds (not Korea — Korea uses time pressure instead)
 const KINGDOM_BETWEEN_ROUNDS: Record<string, Record<number, string>> = {
   srivijaya: SRIVIJAYA_BETWEEN_ROUNDS,
   japan: JAPAN_BETWEEN_ROUNDS,
-  korea: KOREA_BETWEEN_ROUNDS,
 };
 
 // Scholar's judgment after the player's first answer
@@ -543,8 +538,8 @@ export default function KingdomPage({ params }: PageProps) {
               </div>
             ) : KingdomGame ? (
               <>
-                {/* Round counter for choice-gated kingdoms */}
-                {KINGDOM_CHOICES[kingdomSlug] && chosenDifficulty !== null && (
+                {/* Round counter for multi-round kingdoms (not Korea) */}
+                {KINGDOM_BETWEEN_ROUNDS[kingdomSlug] && chosenDifficulty !== null && (
                   <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px" }}>
                     <p style={{ fontFamily: "var(--font-cinzel)", fontSize: "0.6rem", letterSpacing: "0.18em", textTransform: "uppercase", color: "var(--accent-gold)" }}>
                       Round {roundsCompleted + 1} of {TOTAL_ROUNDS}
@@ -563,7 +558,10 @@ export default function KingdomPage({ params }: PageProps) {
                 <KingdomGame
                   key={gameKey}
                   pairCount={pairCount}
-                  {...(KINGDOM_CHOICES[kingdomSlug] && chosenDifficulty !== null ? { difficulty: chosenDifficulty, currentRound: roundsCompleted + 1, totalRounds: TOTAL_ROUNDS } : {})}
+                  {...(KINGDOM_CHOICES[kingdomSlug] && chosenDifficulty !== null ? {
+                    difficulty: chosenDifficulty,
+                    ...(KINGDOM_BETWEEN_ROUNDS[kingdomSlug] ? { currentRound: roundsCompleted + 1, totalRounds: TOTAL_ROUNDS } : {}),
+                  } : {})}
                   onComplete={handleGameComplete}
                 />
               </>
