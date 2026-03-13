@@ -1,17 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import GameTitle from "./GameTitle";
-
-const LANGUAGES = [
-  { code: "en", label: "English" },
-  { code: "id", label: "Indonesian" },
-  { code: "ja", label: "Japanese" },
-  { code: "ko", label: "Korean" },
-  { code: "zh", label: "Chinese" },
-  { code: "bo", label: "Tibetan" },
-];
+import { DEFAULT_LANGUAGE, LANGUAGES } from "@/constants/languages";
 
 interface GameHeaderProps {
   playerName?: string;
@@ -19,8 +11,21 @@ interface GameHeaderProps {
 }
 
 export default function GameHeader({ playerName, style }: GameHeaderProps) {
-  const [selectedLang, setSelectedLang] = useState("en");
+  const [selectedLang, setSelectedLang] = useState(DEFAULT_LANGUAGE);
   const [langOpen, setLangOpen] = useState(false);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("aryansquest_lang");
+    if (saved && LANGUAGES.some((l) => l.code === saved)) {
+      setSelectedLang(saved);
+    }
+  }, []);
+
+  function handleSelectLanguage(code: string) {
+    setSelectedLang(code);
+    localStorage.setItem("aryansquest_lang", code);
+    setLangOpen(false);
+  }
 
   return (
     <div
@@ -93,7 +98,7 @@ export default function GameHeader({ playerName, style }: GameHeaderProps) {
                   {LANGUAGES.map((lang) => (
                     <div
                       key={lang.code}
-                      onClick={() => { setSelectedLang(lang.code); setLangOpen(false); }}
+                      onClick={() => handleSelectLanguage(lang.code)}
                       style={{
                         padding: "8px 14px",
                         fontFamily: "var(--font-cinzel)",

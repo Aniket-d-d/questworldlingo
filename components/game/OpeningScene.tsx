@@ -1,15 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { OPENING_NARRATION, MONK_DIALOGUE } from "@/constants/story";
 import PageShell from "@/components/ui/PageShell";
 import GameTitle from "@/components/ui/GameTitle";
+import { DEFAULT_LANGUAGE, LANGUAGES } from "@/constants/languages";
 
 export default function OpeningScene() {
   const router = useRouter();
   const [panel, setPanel] = useState(0);
   const [panelKey, setPanelKey] = useState(0);
+  const [selectedLang, setSelectedLang] = useState(DEFAULT_LANGUAGE);
+  const [langOpen, setLangOpen] = useState(false);
 
   function goToPanel(n: number) {
     setPanel(n);
@@ -18,6 +21,19 @@ export default function OpeningScene() {
 
   const lines0 = OPENING_NARRATION;
   const lines1 = MONK_DIALOGUE.lines;
+
+  useEffect(() => {
+    const saved = localStorage.getItem("aryansquest_lang");
+    if (saved && LANGUAGES.some((l) => l.code === saved)) {
+      setSelectedLang(saved);
+    }
+  }, []);
+
+  function handleSelectLanguage(code: string) {
+    setSelectedLang(code);
+    localStorage.setItem("aryansquest_lang", code);
+    setLangOpen(false);
+  }
 
   return (
     <PageShell style={{ width: "100vw", height: "100vh", overflow: "hidden", display: "flex", minHeight: "unset" }}>
@@ -204,8 +220,82 @@ export default function OpeningScene() {
           ))}
         </div>
 
-        {/* Title */}
-        <GameTitle style={{ position: "absolute", top: "32px", right: "60px" }} />
+        {/* Title + language */}
+        <div
+          style={{
+            position: "absolute",
+            top: "32px",
+            right: "60px",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "flex-end",
+            gap: "8px",
+          }}
+        >
+          <GameTitle />
+          <div style={{ position: "relative" }}>
+            <button
+              onClick={() => setLangOpen((o) => !o)}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "6px",
+                padding: "0",
+                border: "none",
+                background: "transparent",
+                color: "var(--text-muted)",
+                fontFamily: "var(--font-cinzel)",
+                fontSize: "0.7rem",
+                letterSpacing: "0.1em",
+                cursor: "pointer",
+                transition: "color 0.2s",
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.color = "var(--accent-gold-light)"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.color = "var(--text-muted)"; }}
+            >
+              {LANGUAGES.find((l) => l.code === selectedLang)?.label}
+              <span style={{ fontSize: "0.6rem" }}>{langOpen ? "▲" : "▼"}</span>
+            </button>
+
+            {langOpen && (
+              <div
+                style={{
+                  position: "absolute",
+                  top: "calc(100% + 4px)",
+                  right: 0,
+                  background: "var(--bg-card)",
+                  border: "1px solid var(--border-gold)",
+                  minWidth: "140px",
+                  zIndex: 100,
+                }}
+              >
+                {LANGUAGES.map((lang) => (
+                  <div
+                    key={lang.code}
+                    onClick={() => handleSelectLanguage(lang.code)}
+                    style={{
+                      padding: "8px 14px",
+                      fontFamily: "var(--font-cinzel)",
+                      fontSize: "0.7rem",
+                      letterSpacing: "0.08em",
+                      color: lang.code === selectedLang ? "var(--accent-gold-light)" : "var(--text-muted)",
+                      cursor: "pointer",
+                      transition: "all 0.2s",
+                      backgroundColor: lang.code === selectedLang ? "var(--bg-secondary)" : "transparent",
+                    }}
+                    onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "var(--bg-secondary)"; e.currentTarget.style.color = "var(--accent-gold-light)"; }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = lang.code === selectedLang ? "var(--bg-secondary)" : "transparent";
+                      e.currentTarget.style.color = lang.code === selectedLang ? "var(--accent-gold-light)" : "var(--text-muted)";
+                    }}
+                  >
+                    {lang.label}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
 
       </div>
     </PageShell>
