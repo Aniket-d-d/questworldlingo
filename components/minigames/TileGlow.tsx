@@ -11,6 +11,9 @@ const STAGES = [
 type Phase = "ready" | "showing" | "input" | "stage_clear" | "complete";
 
 interface Props {
+  difficulty?: 1 | 2 | 3;
+  currentRound?: number;
+  totalRounds?: number;
   onComplete: (score: number, total: number) => void;
 }
 
@@ -26,7 +29,9 @@ function pickPattern(size: number, count: number): Set<number> {
 const TILE_SIZE: Record<number, number> = { 3: 82, 4: 66, 5: 54 };
 const GAP = 8;
 
-export default function TileGlow({ onComplete }: Props) {
+export default function TileGlow({ difficulty = 3, currentRound, totalRounds, onComplete }: Props) {
+  // Each difficulty plays a single grid size, repeated 3× by the parent
+  const activeStages = [STAGES[difficulty - 1]];
   const [stageIdx, setStageIdx] = useState(0);
   const [phase, setPhase] = useState<Phase>("ready");
   const [pattern, setPattern] = useState<Set<number>>(new Set());
@@ -36,7 +41,7 @@ export default function TileGlow({ onComplete }: Props) {
   const [retrying, setRetrying] = useState(false);
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
 
-  const stage = STAGES[stageIdx];
+  const stage = activeStages[stageIdx];
 
   function addTimer(fn: () => void, ms: number) {
     const t = setTimeout(fn, ms);
@@ -102,11 +107,11 @@ export default function TileGlow({ onComplete }: Props) {
       if (newFound.size === pattern.size) {
         setPhase("stage_clear");
         addTimer(() => {
-          if (stageIdx < STAGES.length - 1) {
+          if (stageIdx < activeStages.length - 1) {
             setStageIdx((s) => s + 1);
           } else {
             setPhase("complete");
-            addTimer(() => onComplete(3, 3), 900);
+            addTimer(() => onComplete(activeStages.length, activeStages.length), 900);
           }
         }, 1300);
       }
@@ -194,36 +199,63 @@ export default function TileGlow({ onComplete }: Props) {
         </p>
       </div>
 
-      {/* Stage progress */}
+      {/* Stage / Round progress */}
       <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "24px" }}>
-        {STAGES.map((s, i) => {
-          const done = i < stageIdx;
-          const active = i === stageIdx;
-          return (
-            <div key={i} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              <div style={{
-                width: "26px", height: "26px",
-                border: `1px solid ${done ? "var(--accent-gold)" : active ? "var(--accent-gold-light)" : "var(--border-gold)"}`,
-                background: done ? "rgba(201,146,42,0.15)" : "transparent",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                fontFamily: "var(--font-cinzel)", fontSize: "0.62rem",
-                color: done ? "var(--accent-gold)" : active ? "var(--accent-gold-light)" : "var(--text-muted)",
-                transition: "all 0.4s",
-              }}>
-                {done ? "✓" : i + 1}
+        {currentRound && totalRounds ? (
+          // Round progress (Srivijaya multi-round mode)
+          Array.from({ length: totalRounds }, (_, i) => {
+            const done = i + 1 < currentRound;
+            const active = i + 1 === currentRound;
+            return (
+              <div key={i} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <div style={{
+                  width: "26px", height: "26px",
+                  border: `1px solid ${done ? "var(--accent-gold)" : active ? "var(--accent-gold-light)" : "var(--border-gold)"}`,
+                  background: done ? "rgba(201,146,42,0.15)" : "transparent",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  fontFamily: "var(--font-cinzel)", fontSize: "0.62rem",
+                  color: done ? "var(--accent-gold)" : active ? "var(--accent-gold-light)" : "var(--text-muted)",
+                  transition: "all 0.4s",
+                }}>
+                  {done ? "✓" : i + 1}
+                </div>
+                {i < totalRounds - 1 && (
+                  <span style={{ color: "var(--border-gold)", marginLeft: "2px", fontSize: "0.7rem" }}>·</span>
+                )}
               </div>
-              <span style={{
-                fontFamily: "var(--font-cinzel)", fontSize: "0.6rem", letterSpacing: "0.06em",
-                color: active ? "var(--text-secondary)" : "var(--text-muted)",
-              }}>
-                {s.gridDesc}
-              </span>
-              {i < STAGES.length - 1 && (
-                <span style={{ color: "var(--border-gold)", marginLeft: "2px", fontSize: "0.7rem" }}>·</span>
-              )}
-            </div>
-          );
-        })}
+            );
+          })
+        ) : (
+          // Default: stage progress
+          activeStages.map((s, i) => {
+            const done = i < stageIdx;
+            const active = i === stageIdx;
+            return (
+              <div key={i} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <div style={{
+                  width: "26px", height: "26px",
+                  border: `1px solid ${done ? "var(--accent-gold)" : active ? "var(--accent-gold-light)" : "var(--border-gold)"}`,
+                  background: done ? "rgba(201,146,42,0.15)" : "transparent",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  fontFamily: "var(--font-cinzel)", fontSize: "0.62rem",
+                  color: done ? "var(--accent-gold)" : active ? "var(--accent-gold-light)" : "var(--text-muted)",
+                  transition: "all 0.4s",
+                }}>
+                  {done ? "✓" : i + 1}
+                </div>
+                <span style={{
+                  fontFamily: "var(--font-cinzel)", fontSize: "0.6rem", letterSpacing: "0.06em",
+                  color: active ? "var(--text-secondary)" : "var(--text-muted)",
+                }}>
+                  {s.gridDesc}
+                </span>
+                {i < activeStages.length - 1 && (
+                  <span style={{ color: "var(--border-gold)", marginLeft: "2px", fontSize: "0.7rem" }}>·</span>
+                )}
+              </div>
+            );
+          })
+        )}
       </div>
 
       {/* Grid */}

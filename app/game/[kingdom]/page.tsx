@@ -22,6 +22,30 @@ interface ChatMessage {
   text: string;
 }
 
+// Srivijaya — three choices the player picks from instead of free text
+const SRIVIJAYA_CHOICES = [
+  {
+    level: 1 as const,
+    text: "My father was a scholar at Nalanda. I seek to rebuild what he loved — for him, and for the world.",
+    scholarResponse: "Your grief is real. Your purpose is clear. The fire that took Nalanda took many fathers, and it is right that a son should answer it with his whole life. I will give you the gentlest trial — prove your memory is worthy of what you carry.",
+  },
+  {
+    level: 2 as const,
+    text: "I travel to recover all manuscripts scattered after Nalanda's fall. This correspondence belongs with the rest.",
+    scholarResponse: "A collector's purpose — honest, if measured. The correspondence has waited eight years; it can wait a little longer to test you. Show me your memory is equal to the task.",
+  },
+  {
+    level: 3 as const,
+    text: "Because I will not stop until Nalanda lives again. Whatever the cost.",
+    scholarResponse: "Bold words from someone standing on ash. Your determination is clear — now let us see if your mind matches it. I will give you no mercy in this trial. Prove yourself.",
+  },
+];
+
+const SRIVIJAYA_BETWEEN_ROUNDS: Record<number, string> = {
+  1: "Your memory holds. The pattern remains clear in your mind — as it must. Once more.",
+  2: "Again the tiles yield to you. One final trial. Do not let your mind waver now.",
+};
+
 // Scholar's judgment after the player's first answer
 const JUDGMENT_RESPONSES: Record<string, string> = {
   srivijaya: "Your words carry the weight of genuine purpose. The fire that consumed Nalanda was not merely physical — it extinguished the light of a thousand scholars. I see in you the ember that remains. Ask me anything while you prove yourself.",
@@ -94,6 +118,12 @@ export default function KingdomPage({ params }: PageProps) {
   const chatEndRef = useRef<HTMLDivElement>(null);
   const [playerName, setPlayerName] = useState("");
 
+  // Srivijaya-specific: choice-gated difficulty + 3-round tracking
+  const [srivijayaDifficulty, setSrivijayaDifficulty] = useState<1 | 2 | 3 | null>(null);
+  const [roundsCompleted, setRoundsCompleted] = useState(0);
+  const [gameKey, setGameKey] = useState(0);
+  const TOTAL_ROUNDS = 3;
+
   useEffect(() => {
     try {
       const saved = JSON.parse(localStorage.getItem("aryansquest_player") ?? "{}");
@@ -160,6 +190,17 @@ export default function KingdomPage({ params }: PageProps) {
   }
 
   function handleGameComplete(score: number, _total: number) {
+    // Srivijaya: play 3 rounds before completing
+    if (kingdomSlug === "srivijaya" && srivijayaDifficulty !== null) {
+      const nextRound = roundsCompleted + 1;
+      if (nextRound < TOTAL_ROUNDS) {
+        setRoundsCompleted(nextRound);
+        setGameKey((k) => k + 1);
+        addScholarMessage(SRIVIJAYA_BETWEEN_ROUNDS[nextRound] ?? "Once more.");
+        return;
+      }
+    }
+
     setGameComplete(true);
 
     // Save progress and tokens (artifact saved on explicit Collect)
@@ -210,7 +251,7 @@ export default function KingdomPage({ params }: PageProps) {
       <div style={{ flex: 1, display: "flex", overflow: "hidden", padding: "16px 32px 24px", gap: "0" }}>
 
         {/* ── Left — Scholar chat ── */}
-        <div style={{ width: "38%", flexShrink: 0, display: "flex", flexDirection: "column", paddingRight: "32px", borderRight: "1px solid var(--border-gold)" }}>
+        <div style={{ width: "38%", flexShrink: 0, display: "flex", flexDirection: "column", paddingRight: "32px", paddingBottom: "100px", borderRight: "1px solid var(--border-gold)" }}>
 
           {/* Scholar identity */}
           <div style={{ marginBottom: "16px" }}>
@@ -330,51 +371,86 @@ export default function KingdomPage({ params }: PageProps) {
             <div ref={chatEndRef} />
           </div>
 
-          {/* Input — always available until artifact collected */}
+          {/* Input — choice buttons for Srivijaya question, free text otherwise */}
           {!artifactCollected ? (
-            <form data-lingo-skip onSubmit={(e) => { e.preventDefault(); handleSend(); }} style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-              <textarea
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
-                placeholder={chatPhase === "question" ? "Answer the scholar..." : "Ask the scholar anything..."}
-                rows={3}
-                style={{
-                  background: "var(--bg-card)",
-                  border: "1px solid var(--border-gold)",
-                  color: "var(--text-primary)",
-                  padding: "10px 14px",
-                  fontFamily: "var(--font-crimson)",
-                  fontSize: "0.95rem",
-                  resize: "none",
-                  outline: "none",
-                  transition: "border-color 0.2s",
-                }}
-                onFocus={(e) => { e.currentTarget.style.borderColor = "var(--accent-gold)"; }}
-                onBlur={(e) => { e.currentTarget.style.borderColor = "var(--border-gold)"; }}
-              />
-              <button
-                type="submit"
-                disabled={!input.trim() || typing}
-                style={{
-                  padding: "10px",
-                  border: "1px solid var(--accent-gold)",
-                  background: "transparent",
-                  color: "var(--accent-gold-light)",
-                  fontFamily: "var(--font-cinzel)",
-                  fontSize: "0.7rem",
-                  letterSpacing: "0.15em",
-                  textTransform: "uppercase",
-                  cursor: input.trim() && !typing ? "pointer" : "not-allowed",
-                  opacity: input.trim() && !typing ? 1 : 0.5,
-                  transition: "all 0.2s",
-                }}
-                onMouseEnter={(e) => { if (input.trim() && !typing) { e.currentTarget.style.background = "var(--accent-gold)"; e.currentTarget.style.color = "var(--bg-primary)"; } }}
-                onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--accent-gold-light)"; }}
-              >
-                Speak →
-              </button>
-            </form>
+            kingdomSlug === "srivijaya" && chatPhase === "question" && srivijayaDifficulty === null ? (
+              // Three choice buttons
+              <div data-lingo-skip style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                {SRIVIJAYA_CHOICES.map((choice) => (
+                  <button
+                    key={choice.level}
+                    disabled={typing}
+                    onClick={() => {
+                      if (typing) return;
+                      setSrivijayaDifficulty(choice.level);
+                      setMessages((m) => [...m, { role: "player", text: choice.text }]);
+                      addScholarMessage(choice.scholarResponse, () => setChatPhase("free_chat"));
+                    }}
+                    style={{
+                      textAlign: "left",
+                      padding: "10px 14px",
+                      border: "1px solid var(--border-gold)",
+                      background: "var(--bg-card)",
+                      color: "var(--text-secondary)",
+                      fontFamily: "var(--font-crimson)",
+                      fontSize: "0.9rem",
+                      lineHeight: 1.5,
+                      cursor: typing ? "not-allowed" : "pointer",
+                      opacity: typing ? 0.5 : 1,
+                      transition: "all 0.2s",
+                    }}
+                    onMouseEnter={(e) => { if (!typing) { e.currentTarget.style.borderColor = "var(--accent-gold)"; e.currentTarget.style.color = "var(--text-primary)"; } }}
+                    onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--border-gold)"; e.currentTarget.style.color = "var(--text-secondary)"; }}
+                  >
+                    {choice.text}
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <form data-lingo-skip onSubmit={(e) => { e.preventDefault(); handleSend(); }} style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                <textarea
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
+                  placeholder={chatPhase === "question" ? "Answer the scholar..." : "Ask the scholar anything..."}
+                  rows={3}
+                  style={{
+                    background: "var(--bg-card)",
+                    border: "1px solid var(--border-gold)",
+                    color: "var(--text-primary)",
+                    padding: "10px 14px",
+                    fontFamily: "var(--font-crimson)",
+                    fontSize: "0.95rem",
+                    resize: "none",
+                    outline: "none",
+                    transition: "border-color 0.2s",
+                  }}
+                  onFocus={(e) => { e.currentTarget.style.borderColor = "var(--accent-gold)"; }}
+                  onBlur={(e) => { e.currentTarget.style.borderColor = "var(--border-gold)"; }}
+                />
+                <button
+                  type="submit"
+                  disabled={!input.trim() || typing}
+                  style={{
+                    padding: "10px",
+                    border: "1px solid var(--accent-gold)",
+                    background: "transparent",
+                    color: "var(--accent-gold-light)",
+                    fontFamily: "var(--font-cinzel)",
+                    fontSize: "0.7rem",
+                    letterSpacing: "0.15em",
+                    textTransform: "uppercase",
+                    cursor: input.trim() && !typing ? "pointer" : "not-allowed",
+                    opacity: input.trim() && !typing ? 1 : 0.5,
+                    transition: "all 0.2s",
+                  }}
+                  onMouseEnter={(e) => { if (input.trim() && !typing) { e.currentTarget.style.background = "var(--accent-gold)"; e.currentTarget.style.color = "var(--bg-primary)"; } }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--accent-gold-light)"; }}
+                >
+                  Speak →
+                </button>
+              </form>
+            )
           ) : (
             <p data-lingo-skip style={{
               fontFamily: "var(--font-cinzel)",
@@ -395,9 +471,43 @@ export default function KingdomPage({ params }: PageProps) {
           <BackButton />
 
           {!gameComplete ? (
-            // Mini-game
-            KingdomGame ? (
-              <KingdomGame pairCount={pairCount} onComplete={handleGameComplete} />
+            // Srivijaya: locked until player picks a choice
+            kingdomSlug === "srivijaya" && srivijayaDifficulty === null ? (
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", gap: "16px" }}>
+                <p style={{ fontFamily: "var(--font-cinzel)", fontSize: "1.6rem", color: "var(--border-gold)" }}>⊘</p>
+                <p style={{ fontFamily: "var(--font-cinzel)", fontSize: "0.65rem", letterSpacing: "0.2em", textTransform: "uppercase", color: "var(--text-muted)", textAlign: "center" }}>
+                  The Trial Awaits
+                </p>
+                <p style={{ fontFamily: "var(--font-crimson)", fontSize: "0.95rem", color: "var(--text-muted)", fontStyle: "italic", textAlign: "center", maxWidth: "280px" }}>
+                  Answer Dharmakirti&apos;s question to unlock your trial.
+                </p>
+              </div>
+            ) : KingdomGame ? (
+              <>
+                {/* Round counter for Srivijaya */}
+                {kingdomSlug === "srivijaya" && (
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px" }}>
+                    <p style={{ fontFamily: "var(--font-cinzel)", fontSize: "0.6rem", letterSpacing: "0.18em", textTransform: "uppercase", color: "var(--accent-gold)" }}>
+                      Round {roundsCompleted + 1} of {TOTAL_ROUNDS}
+                    </p>
+                    <div style={{ display: "flex", gap: "6px" }}>
+                      {Array.from({ length: TOTAL_ROUNDS }, (_, i) => (
+                        <div key={i} style={{
+                          width: "20px", height: "4px", borderRadius: "2px",
+                          backgroundColor: i < roundsCompleted ? "var(--accent-gold)" : i === roundsCompleted ? "var(--accent-gold-light)" : "var(--border-gold)",
+                          transition: "background-color 0.4s",
+                        }} />
+                      ))}
+                    </div>
+                  </div>
+                )}
+                <KingdomGame
+                  key={gameKey}
+                  pairCount={pairCount}
+                  {...(kingdomSlug === "srivijaya" && srivijayaDifficulty !== null ? { difficulty: srivijayaDifficulty, currentRound: roundsCompleted + 1, totalRounds: TOTAL_ROUNDS } : {})}
+                  onComplete={handleGameComplete}
+                />
+              </>
             ) : (
               <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%" }}>
                 <p style={{ fontFamily: "var(--font-crimson)", color: "var(--text-muted)", fontStyle: "italic" }}>
