@@ -27,8 +27,12 @@ export default function OpeningScene() {
   const selectedLang =
     LANGUAGES.find((l) => l.code === locale) ?? LANGUAGES.find((l) => l.code === DEFAULT_LANGUAGE);
 
-  function handleSelectLanguage(code: LocaleCode) {
-    setLocale(code);
+  async function handleSelectLanguage(code: LocaleCode) {
+    if (code === locale) {
+      setLangOpen(false);
+      return;
+    }
+    await setLocale(code);
     setLangOpen(false);
   }
 

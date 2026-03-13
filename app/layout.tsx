@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Cinzel, Crimson_Text } from "next/font/google";
-import { LingoProvider } from "@lingo.dev/compiler/react";
+import { LingoProvider } from "@lingo.dev/compiler/react/next";
 import "./globals.css";
 
 const cinzel = Cinzel({
