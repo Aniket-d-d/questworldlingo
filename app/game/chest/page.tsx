@@ -1,12 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import type { ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { KINGDOMS } from "@/constants/story";
 import PageShell from "@/components/ui/PageShell";
 import GameHeader from "@/components/ui/GameHeader";
 import BackButton from "@/components/ui/BackButton";
+import KingdomText from "@/components/game/KingdomText";
 
 interface PlayerState {
   name: string;
@@ -14,50 +14,31 @@ interface PlayerState {
   artifacts: string[];
 }
 
-const MANUSCRIPT_DETAILS: Record<string, { excerpt: ReactNode; significance: ReactNode }> = {
+const manuscriptDetails: Record<string, { excerpt: string; significance: string }> = {
   srivijaya: {
-    excerpt: (
-      <>“At the request of His Majesty the Maharaja Balaputradeva, lord of Suvarnadvipa, King Devapala of the Pala Empire has granted five villages in the district of Rajagriha for the perpetual upkeep of the monastery at Nalanda. The monks of Srivijaya have studied at Nalanda for three generations, learning the Vajrayana doctrines of emptiness and dependent origination as expounded by the great masters of this house. The monk Yijing of China, who spent ten years in Palembang, wrote that he found there more than a thousand monks who followed the same rules and methods as Nalanda itself. The teaching of Nagarjuna lives here still: that all phenomena arise not from self-nature but from the web of conditions. This wisdom, born at Nalanda, traveled south across the Bay of Bengal, and in Srivijaya became the foundation upon which a thousand scholars now build their understanding.”</>
-    ),
-    significance: (
-      <>The Nalanda Copper Plate Grant of Devapala (860 CE), discovered at Nalanda in 1921, is the only known royal inscription recording a foreign king — Balaputradeva of Srivijaya — funding a monastery at Nalanda. The Chinese pilgrim Yijing praised Srivijaya’s scholarship so highly that he advised all monks traveling to Nalanda to study there first. This correspondence is the documentary proof of Nalanda’s reach across the maritime Silk Road.</>
-    ),
+    excerpt: `”At the request of His Majesty the Maharaja Balaputradeva, lord of Suvarnadvipa, King Devapala of the Pala Empire has granted five villages in the district of Rajagriha for the perpetual upkeep of the monastery at Nalanda. The monks of Srivijaya have studied at Nalanda for three generations, learning the Vajrayana doctrines of emptiness and dependent origination as expounded by the great masters of this house. The monk Yijing of China, who spent ten years in Palembang, wrote that he found there more than a thousand monks who followed the same rules and methods as Nalanda itself. The teaching of Nagarjuna lives here still: that all phenomena arise not from self-nature but from the web of conditions. This wisdom, born at Nalanda, traveled south across the Bay of Bengal, and in Srivijaya became the foundation upon which a thousand scholars now build their understanding.”`,
+    significance: `The Nalanda Copper Plate Grant of Devapala (860 CE), discovered at Nalanda in 1921, is the only known royal inscription recording a foreign king — Balaputradeva of Srivijaya — funding a monastery at Nalanda. The Chinese pilgrim Yijing praised Srivijaya’s scholarship so highly that he advised all monks traveling to Nalanda to study there first. This correspondence is the documentary proof of Nalanda’s reach across the maritime Silk Road.`,
   },
   japan: {
-    excerpt: (
-      <>“What is enlightenment? It is to know one’s own mind as it truly is. The infant’s mind knows not good from evil — this is the first stage. The mind that reaches toward virtue is the second. But the tenth and highest stage is this: to recognise that the ground of all mind and all phenomena is the great Body-Mind of the universe — the Dharmakaya Mahavairocana. Nalanda transmitted not doctrine alone. It transmitted the direct pointing at this: your own mind, in its fountainhead, is already the Buddha. Kukai carried this across ten thousand li of sea and mountain, and planted it here in Japan so it would not be lost.”</>
-    ),
-    significance: (
-      <>Kukai (Kobo Daishi, 774–835) studied Sanskrit under Prajña, a Nalanda-trained scholar, and received the esoteric transmission from Huiguo — the lineage of Nalanda’s Vajrayana tradition. His Jujushinron (Ten Stages of the Mind, 830 CE) is the culminating philosophical statement of Japanese Buddhism, grounding the Shingon school in the Mahavairocana Sutra. It remains the most systematic Buddhist philosophical work Japan has produced.</>
-    ),
+    excerpt: `”What is enlightenment? It is to know one’s own mind as it truly is. The infant’s mind knows not good from evil — this is the first stage. The mind that reaches toward virtue is the second. But the tenth and highest stage is this: to recognise that the ground of all mind and all phenomena is the great Body-Mind of the universe — the Dharmakaya Mahavairocana. Nalanda transmitted not doctrine alone. It transmitted the direct pointing at this: your own mind, in its fountainhead, is already the Buddha. Kukai carried this across ten thousand li of sea and mountain, and planted it here in Japan so it would not be lost.”`,
+    significance: `Kukai (Kobo Daishi, 774-835) studied Sanskrit under Prajna, a Nalanda-trained scholar, and received the esoteric transmission from Huiguo — the lineage of Nalanda’s Vajrayana tradition. His Jujushinron (Ten Stages of the Mind, 830 CE) is the culminating philosophical statement of Japanese Buddhism, grounding the Shingon school in the Mahavairocana Sutra. It remains the most systematic Buddhist philosophical work Japan has produced.`,
   },
   korea: {
-    excerpt: (
-      <>“Thus have I heard. At one time the Buddha was in the land of the Magadha states, in a place of initial enlightenment, just having realised the way of complete, unsurpassed awakening. The ground was adamantine, adorned with arrays of wish-fulfilling gems — lotus flowers springing up everywhere, completely covering the world. The Enlightenment Tree was tall and imposing. Under it the Bodhisattvas had gathered like clouds, each having come from distant lands to be present at this moment. Consider: if all things are mutually arising, and if each thing contains the reflection of all others — as a jewel reflects every jewel in Indra’s Net — then the destruction of any one thing diminishes the whole universe. This is why we carve.”</>
-    ),
-    significance: (
-      <>The Tripitaka Koreana (팔만대장경) is the most complete and textually accurate collection of the Buddhist canon in existence — 81,258 woodblocks, 52 million carved characters. Monk Uicheon (1055–1101) spent decades collecting Buddhist texts from across Asia, many ultimately tracing back to Nalanda’s libraries. The opening passage here is from the Avatamsaka Sutra (Flower Garland Sutra), the first and most revered text in the collection, teaching the doctrine of Indra’s Net — the infinite interdependence of all phenomena.</>
-    ),
+    excerpt: `”Thus have I heard. At one time the Buddha was in the land of the Magadha states, in a place of initial enlightenment, just having realised the way of complete, unsurpassed awakening. The ground was adamantine, adorned with arrays of wish-fulfilling gems — lotus flowers springing up everywhere, completely covering the world. The Enlightenment Tree was tall and imposing. Under it the Bodhisattvas had gathered like clouds, each having come from distant lands to be present at this moment. Consider: if all things are mutually arising, and if each thing contains the reflection of all others — as a jewel reflects every jewel in Indra’s Net — then the destruction of any one thing diminishes the whole universe. This is why we carve.”`,
+    significance: `The Tripitaka Koreana is the most complete and textually accurate collection of the Buddhist canon in existence — 81,258 woodblocks, 52 million carved characters. Monk Uicheon (1055-1101) spent decades collecting Buddhist texts from across Asia, many ultimately tracing back to Nalanda’s libraries. The opening passage here is from the Avatamsaka Sutra (Flower Garland Sutra), the first and most revered text in the collection, teaching the doctrine of Indra’s Net — the infinite interdependence of all phenomena.`,
   },
   china: {
-    excerpt: (
-      <>“The monk Xuanzang walked from this land to Nalanda and returned with six hundred and fifty-seven texts. Among them was the Yogacarabhumi — the Stages of Yogic Practice — which Silabhadra of Nalanda taught him across fifteen months of daily instruction. The great Abbot was one hundred years old. Xuanzang was thirty. What Nalanda gave him was not merely religion but method: observe without assumption, reason without bias, record with precision. I have followed this method. I find that the needle, suspended on thread, does not point true south — it inclines slightly east. The earth itself has a declination that no ancient text recorded. What Nalanda knew was that the world yields its secrets only to those who look at it directly.”</>
-    ),
-    significance: (
-      <>Shen Kuo’s Mengxi Bitan (Dream Pool Essays, 1088 CE) is the world’s first encyclopaedia of natural science — recording the magnetic compass, magnetic declination, fossil theory, movable-type printing, and pharmaceutical botany. Xuanzang’s monumental translation of 657 Nalanda texts into Chinese established the intellectual tradition of rigorous inquiry that defined Song Dynasty scholarship. Shen Kuo explicitly credits the analytical frameworks of Buddhist logic — refined at Nalanda — as foundational to his scientific method.</>
-    ),
+    excerpt: `”The monk Xuanzang walked from this land to Nalanda and returned with six hundred and fifty-seven texts. Among them was the Yogacarabhumi — the Stages of Yogic Practice — which Silabhadra of Nalanda taught him across fifteen months of daily instruction. The great Abbot was one hundred years old. Xuanzang was thirty. What Nalanda gave him was not merely religion but method: observe without assumption, reason without bias, record with precision. I have followed this method. I find that the needle, suspended on thread, does not point true south — it inclines slightly east. The earth itself has a declination that no ancient text recorded. What Nalanda knew was that the world yields its secrets only to those who look at it directly.”`,
+    significance: `Shen Kuo’s Mengxi Bitan (Dream Pool Essays, 1088 CE) is the world’s first encyclopaedia of natural science — recording the magnetic compass, magnetic declination, fossil theory, movable-type printing, and pharmaceutical botany. Xuanzang’s monumental translation of 657 Nalanda texts into Chinese established the intellectual tradition of rigorous inquiry that defined Song Dynasty scholarship. Shen Kuo explicitly credits the analytical frameworks of Buddhist logic — refined at Nalanda — as foundational to his scientific method.`,
   },
   tibet: {
-    excerpt: (
-      <>“These pages came to us before the smoke was visible on the horizon. Three monks carried them across the Himalayas — texts from Nagarjuna, from Dharmakirti, from Asanga. Nagarjuna taught: nothing exists from its own side. All things are empty of inherent existence — what a thing is depends entirely on what knows it. Asanga taught: the storehouse consciousness holds the seeds of all experience, and liberation is the recognition of what was always already free. Nalanda knew this most deeply of all institutions the world has ever built. Nine million manuscripts. Three months of burning. And yet — what cannot be burned is here. The lineage is unbroken. We have been waiting forty years for someone to come and carry it forward.”</>
-    ),
-    significance: (
-      <>When Bakhtiyar Khilji burned Nalanda in 1193 CE, the library burned for three months — nine million manuscripts. Tibetan monks had been collecting and translating Nalanda texts for four centuries. The Tengyur (Commentaries) preserves the complete works of Nalanda’s greatest masters: Nagarjuna, Asanga, Vasubandhu, Dharmakirti, Chandrakirti, Shantideva, and Atisha. Sakya Pandita (1182–1251), guardian of these texts in 1203 CE, was fluent in Sanskrit, mastered all five great sciences, and was considered the last direct heir of the Nalanda philosophical tradition.</>
-    ),
+    excerpt: `”These pages came to us before the smoke was visible on the horizon. Three monks carried them across the Himalayas — texts from Nagarjuna, from Dharmakirti, from Asanga. Nagarjuna taught: nothing exists from its own side. All things are empty of inherent existence — what a thing is depends entirely on what knows it. Asanga taught: the storehouse consciousness holds the seeds of all experience, and liberation is the recognition of what was always already free. Nalanda knew this most deeply of all institutions the world has ever built. Nine million manuscripts. Three months of burning. And yet — what cannot be burned is here. The lineage is unbroken. We have been waiting forty years for someone to come and carry it forward.”`,
+    significance: `When Bakhtiyar Khilji burned Nalanda in 1193 CE, the library burned for three months — nine million manuscripts. Tibetan monks had been collecting and translating Nalanda texts for four centuries. The Tengyur (Commentaries) preserves the complete works of Nalanda’s greatest masters: Nagarjuna, Asanga, Vasubandhu, Dharmakirti, Chandrakirti, Shantideva, and Atisha. Sakya Pandita (1182-1251), guardian of these texts in 1203 CE, was fluent in Sanskrit, mastered all five great sciences, and was considered the last direct heir of the Nalanda philosophical tradition.`,
   },
 };
 
 export default function ChestPage() {
+
   const router = useRouter();
   const [player, setPlayer] = useState<PlayerState | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
@@ -76,7 +57,7 @@ export default function ChestPage() {
 
   const collectedCount = player.artifacts.length;
   const selectedKingdom = KINGDOMS.find((k) => k.id === selected);
-  const selectedDetails = selected ? MANUSCRIPT_DETAILS[selected] : null;
+  const selectedDetails = selected ? manuscriptDetails[selected] : null;
   const isCollected = selected ? player.artifacts.includes(selected) : false;
 
   return (
@@ -187,7 +168,7 @@ export default function ChestPage() {
                       overflow: "hidden",
                       textOverflow: "ellipsis",
                     }}>
-                      {collected ? kingdom.artifact : "???"}
+                      {collected ? <KingdomText id={kingdom.id} field="artifact" /> : "???"}
                     </p>
                     <p style={{
                       fontFamily: "var(--font-crimson)",
@@ -195,7 +176,7 @@ export default function ChestPage() {
                       color: "var(--text-muted)",
                       fontStyle: "italic",
                     }}>
-                      {kingdom.name} · {kingdom.language}
+                      <KingdomText id={kingdom.id} field="name" /> · <KingdomText id={kingdom.id} field="language" />
                     </p>
                   </div>
 
@@ -287,7 +268,7 @@ export default function ChestPage() {
                 color: "var(--accent-gold)",
                 marginBottom: "8px",
               }}>
-                {selectedKingdom.name} · {selectedKingdom.language}
+                <KingdomText id={selectedKingdom.id} field="name" /> · <KingdomText id={selectedKingdom.id} field="language" />
               </p>
               <h3 style={{
                 fontFamily: "var(--font-cinzel)",
@@ -297,7 +278,7 @@ export default function ChestPage() {
                 marginBottom: "24px",
                 lineHeight: 1.4,
               }}>
-                {selectedKingdom.artifact}
+                <KingdomText id={selectedKingdom.id} field="artifact" />
               </h3>
 
               {/* Excerpt */}
@@ -322,7 +303,7 @@ export default function ChestPage() {
                 }}>
                   Excerpt
                 </span>
-                <p style={{
+                <p data-lingo-skip style={{
                   fontFamily: "var(--font-crimson)",
                   fontSize: "1rem",
                   lineHeight: 1.75,
@@ -349,7 +330,7 @@ export default function ChestPage() {
                 }}>
                   Historical Significance
                 </p>
-                <p style={{
+                <p data-lingo-skip style={{
                   fontFamily: "var(--font-crimson)",
                   fontSize: "0.95rem",
                   lineHeight: 1.65,
@@ -384,7 +365,7 @@ export default function ChestPage() {
                     color: "var(--accent-gold-light)",
                     letterSpacing: "0.06em",
                   }}>
-                    {selectedKingdom.language}
+                    <KingdomText id={selectedKingdom.id} field="language" />
                   </span>
                 </div>
                 <div style={{
@@ -410,7 +391,7 @@ export default function ChestPage() {
                     color: "var(--accent-gold-light)",
                     letterSpacing: "0.06em",
                   }}>
-                    {selectedKingdom.scholarName}
+                    <KingdomText id={selectedKingdom.id} field="scholarName" />
                   </span>
                 </div>
               </div>

@@ -11,6 +11,7 @@ import PageShell from "@/components/ui/PageShell";
 import GameHeader from "@/components/ui/GameHeader";
 import BackButton from "@/components/ui/BackButton";
 import { KINGDOM_GAMES } from "@/components/minigames";
+import KingdomText from "@/components/game/KingdomText";
 
 interface PageProps {
   params: Promise<{ kingdom: string }>;
@@ -221,7 +222,7 @@ export default function KingdomPage({ params }: PageProps) {
               color: "var(--accent-gold)",
               marginBottom: "4px",
             }}>
-              {kingdom.name} · Scholar Guardian
+              <KingdomText id={kingdom.id} field="name" /> · Scholar Guardian
             </p>
             <h2 style={{
               fontFamily: "var(--font-cinzel)",
@@ -238,7 +239,7 @@ export default function KingdomPage({ params }: PageProps) {
               fontStyle: "italic",
               marginTop: "2px",
             }}>
-              {kingdom.location} · {config.era}
+              <KingdomText id={kingdom.id} field="location" /> · {config.era}
             </p>
           </div>
 
@@ -449,7 +450,7 @@ export default function KingdomPage({ params }: PageProps) {
                 marginBottom: "8px",
                 maxWidth: "340px",
               }}>
-                {kingdom.artifact}
+                <KingdomText id={kingdom.id} field="artifact" />
               </h3>
 
               <p style={{
@@ -459,7 +460,7 @@ export default function KingdomPage({ params }: PageProps) {
                 fontStyle: "italic",
                 marginBottom: "32px",
               }}>
-                {kingdom.name} · {kingdom.language}
+                <KingdomText id={kingdom.id} field="name" /> · <KingdomText id={kingdom.id} field="language" />
               </p>
 
               {/* Collect button */}

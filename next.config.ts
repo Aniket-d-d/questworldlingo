@@ -9,7 +9,7 @@ export default async function (): Promise<NextConfig> {
   return await withLingo(nextConfig, {
     sourceRoot: "./",
     sourceLocale: "en",
-    targetLocales: ["de", "fr", "zh", "hi", "ko", "ja", "es", "ru"],
+    targetLocales: ["de", "fr", "es", "ja", "hi", "zh-TW", "ko", "ru"],
     models: "lingo.dev",
     dev: {
       usePseudotranslator: false,

@@ -1,7 +1,7 @@
 "use client";
 
-import type { ReactNode } from "react";
 import { Kingdom, KingdomStatus } from "@/types";
+import KingdomText from "./KingdomText";
 
 interface KingdomCardProps {
   kingdom: Kingdom;
@@ -15,13 +15,6 @@ const STATUS_STYLES: Record<KingdomStatus, string> = {
   available: "cursor-pointer hover:border-[var(--accent-gold)] hover:bg-[var(--bg-secondary)]",
   in_progress: "cursor-pointer border-[var(--accent-gold)] bg-[var(--bg-secondary)]",
   completed: "cursor-pointer border-green-800 bg-[var(--bg-secondary)] opacity-80",
-};
-
-const STATUS_LABEL: Record<KingdomStatus, ReactNode> = {
-  locked: <>Locked</>,
-  available: <>Available</>,
-  in_progress: <>In Progress</>,
-  completed: <>Completed</>,
 };
 
 const STATUS_DOT_COLOR: Record<KingdomStatus, string> = {
@@ -71,7 +64,7 @@ export default function KingdomCard({
           className="text-xs tracking-widest uppercase text-[var(--text-muted)]"
           style={{ fontFamily: "var(--font-cinzel)" }}
         >
-          {STATUS_LABEL[status]}
+          {status === "locked" ? <>Locked</> : status === "available" ? <>Available</> : status === "in_progress" ? <>In Progress</> : <>Completed</>}
         </span>
       </div>
 
@@ -80,12 +73,12 @@ export default function KingdomCard({
         className="text-lg font-semibold text-[var(--accent-gold-light)] mb-1 leading-tight"
         style={{ fontFamily: "var(--font-cinzel)" }}
       >
-        {kingdom.name}
+        <KingdomText id={kingdom.id} field="name" />
       </h3>
 
       {/* Location */}
       <p className="text-[var(--text-muted)] text-sm mb-3 italic">
-        {kingdom.location}
+        <KingdomText id={kingdom.id} field="location" />
       </p>
 
       {/* Artifact */}
@@ -94,14 +87,14 @@ export default function KingdomCard({
           style={{ fontFamily: "var(--font-cinzel)" }}>
           Manuscript
         </p>
-        <p className="text-sm text-[var(--text-secondary)]">{kingdom.artifact}</p>
+        <p className="text-sm text-[var(--text-secondary)]"><KingdomText id={kingdom.id} field="artifact" /></p>
       </div>
 
       {/* Language */}
       <div className="mt-3">
         <p className="text-xs text-[var(--text-muted)] uppercase tracking-wide"
           style={{ fontFamily: "var(--font-cinzel)" }}>
-          Language · {kingdom.language}
+          Language · <KingdomText id={kingdom.id} field="language" />
         </p>
       </div>
 

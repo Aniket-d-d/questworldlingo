@@ -9,11 +9,11 @@ export const LANGUAGES: LanguageOption[] = [
   { code: "en", label: "English" },
   { code: "de", label: "German" },
   { code: "fr", label: "French" },
-  { code: "zh", label: "Chinese" },
-  { code: "hi", label: "Hindi" },
-  { code: "ko", label: "Korean" },
-  { code: "ja", label: "Japanese" },
   { code: "es", label: "Spanish" },
+  { code: "ja", label: "Japanese" },
+  { code: "hi", label: "Hindi" },
+  { code: "zh-TW", label: "Chinese" },
+  { code: "ko", label: "Korean" },
   { code: "ru", label: "Russian" },
 ];
 

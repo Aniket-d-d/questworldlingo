@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Kingdom, Verdict } from "@/types";
 import { SCHOLAR_CONFIGS } from "@/constants/scholars";
+import KingdomText from "./KingdomText";
 
 interface ScholarChatProps {
   kingdom: Kingdom;
@@ -62,7 +63,7 @@ export default function ScholarChat({ kingdom, onComplete }: ScholarChatProps) {
             className="text-[var(--accent-gold)] text-xs tracking-widest uppercase mb-2"
             style={{ fontFamily: "var(--font-cinzel)" }}
           >
-            {kingdom.name} · Scholar Guardian
+            <KingdomText id={kingdom.id} field="name" /> · Scholar Guardian
           </p>
           <h2
             className="text-2xl font-bold text-[var(--text-primary)]"

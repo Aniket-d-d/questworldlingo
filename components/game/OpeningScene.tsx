@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { OPENING_NARRATION, MONK_DIALOGUE } from "@/constants/story";
 import PageShell from "@/components/ui/PageShell";
 import GameTitle from "@/components/ui/GameTitle";
 import { DEFAULT_LANGUAGE, LANGUAGES } from "@/constants/languages";
@@ -21,8 +20,26 @@ export default function OpeningScene() {
     setPanelKey((k) => k + 1);
   }
 
-  const lines0 = OPENING_NARRATION;
-  const lines1 = MONK_DIALOGUE.lines;
+  const lines0 = [
+    <>1193 AD. Foreign invaders sweep through northern India.</>,
+    <>Nalanda — the greatest university the world had ever seen — is set on fire.</>,
+    <>Nine million manuscripts. Ten thousand students. Two thousand teachers.</>,
+    <>The fire burns for three months.</>,
+    <>Every book, every scroll, every word of human knowledge — reduced to ash.</>,
+    <>The world does not yet know what it has lost.</>,
+  ];
+
+  const lines1 = [
+    <>My father described Nalanda like a second sky — so vast, so full of light.</>,
+    <>He said walking its corridors felt like touching everything humanity had ever known.</>,
+    <>Then the news reached our village. Foreign invaders. Fire. No survivors.</>,
+    <>My father was one of the scholars who could not escape.</>,
+    <>I left home the same day the news arrived.</>,
+    <>Months later, I arrived at the gates. Nothing remained but ash and silence.</>,
+    <>Nine million manuscripts. Gone. Every word my father ever read — gone.</>,
+    <>But knowledge does not vanish. It moves. It hides. It waits.</>,
+    <>I know where it went. And I am going to bring it all back — for him.</>,
+  ];
 
   const selectedLang =
     LANGUAGES.find((l) => l.code === locale) ?? LANGUAGES.find((l) => l.code === DEFAULT_LANGUAGE);

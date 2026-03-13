@@ -1,29 +1,4 @@
-import type { ReactNode } from "react";
 import { Kingdom } from "@/types";
-
-export const MONK_DIALOGUE: { lines: ReactNode[]; farewellLine: ReactNode } = {
-  lines: [
-    <>My father described Nalanda like a second sky — so vast, so full of light.</>,
-    <>He said walking its corridors felt like touching everything humanity had ever known.</>,
-    <>Then the news reached our village. Foreign invaders. Fire. No survivors.</>,
-    <>My father was one of the scholars who could not escape.</>,
-    <>I left home the same day the news arrived.</>,
-    <>Months later, I arrived at the gates. Nothing remained but ash and silence.</>,
-    <>Nine million manuscripts. Gone. Every word my father ever read — gone.</>,
-    <>But knowledge does not vanish. It moves. It hides. It waits.</>,
-    <>I know where it went. And I am going to bring it all back — for him.</>,
-  ],
-  farewellLine: <>I am going to bring it all back — for him.</>,
-};
-
-export const OPENING_NARRATION: ReactNode[] = [
-  <>1193 AD. Foreign invaders sweep through northern India.</>,
-  <>Nalanda — the greatest university the world had ever seen — is set on fire.</>,
-  <>Nine million manuscripts. Ten thousand students. Two thousand teachers.</>,
-  <>The fire burns for three months.</>,
-  <>Every book, every scroll, every word of human knowledge — reduced to ash.</>,
-  <>The world does not yet know what it has lost.</>,
-];
 
 export const KINGDOMS: Kingdom[] = [
   {

@@ -4,13 +4,9 @@ import { useRouter } from "next/navigation";
 
 interface BackButtonProps {
   href?: string;
-  label?: string;
 }
 
-export default function BackButton({
-  href = "/game",
-  label = "← World Map",
-}: BackButtonProps) {
+export default function BackButton({ href = "/game" }: BackButtonProps) {
   const router = useRouter();
 
   return (
@@ -39,7 +35,7 @@ export default function BackButton({
         e.currentTarget.style.color = "var(--text-muted)";
       }}
     >
-      {label}
+      ← World Map
     </button>
   );
 }
