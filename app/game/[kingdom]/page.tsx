@@ -11,6 +11,7 @@ import PageShell from "@/components/ui/PageShell";
 import GameHeader from "@/components/ui/GameHeader";
 import BackButton from "@/components/ui/BackButton";
 import { KINGDOM_GAMES } from "@/components/minigames";
+import KingdomText from "@/components/game/KingdomText";
 
 interface PageProps {
   params: Promise<{ kingdom: string }>;
@@ -221,7 +222,7 @@ export default function KingdomPage({ params }: PageProps) {
               color: "var(--accent-gold)",
               marginBottom: "4px",
             }}>
-              {kingdom.name} · Scholar Guardian
+              <KingdomText id={kingdom.id} field="name" /> · Scholar Guardian
             </p>
             <h2 style={{
               fontFamily: "var(--font-cinzel)",
@@ -238,7 +239,7 @@ export default function KingdomPage({ params }: PageProps) {
               fontStyle: "italic",
               marginTop: "2px",
             }}>
-              {kingdom.location} · {config.era}
+              <KingdomText id={kingdom.id} field="location" /> · {config.era}
             </p>
           </div>
 
@@ -272,8 +273,8 @@ export default function KingdomPage({ params }: PageProps) {
             )}
           </div>
 
-          {/* Chat messages */}
-          <div style={{ flex: 1, overflowY: "auto", display: "flex", flexDirection: "column", gap: "12px", paddingRight: "4px", marginBottom: "14px" }}>
+          {/* Chat messages (excluded from translation for now) */}
+          <div data-lingo-skip style={{ flex: 1, overflowY: "auto", display: "flex", flexDirection: "column", gap: "12px", paddingRight: "4px", marginBottom: "14px" }}>
             {messages.map((msg, i) => (
               <div key={i} style={{
                 display: "flex",
@@ -331,7 +332,7 @@ export default function KingdomPage({ params }: PageProps) {
 
           {/* Input — always available until artifact collected */}
           {!artifactCollected ? (
-            <form onSubmit={(e) => { e.preventDefault(); handleSend(); }} style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+            <form data-lingo-skip onSubmit={(e) => { e.preventDefault(); handleSend(); }} style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
               <textarea
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
@@ -375,7 +376,7 @@ export default function KingdomPage({ params }: PageProps) {
               </button>
             </form>
           ) : (
-            <p style={{
+            <p data-lingo-skip style={{
               fontFamily: "var(--font-cinzel)",
               fontSize: "0.65rem",
               color: "var(--text-muted)",
@@ -449,7 +450,7 @@ export default function KingdomPage({ params }: PageProps) {
                 marginBottom: "8px",
                 maxWidth: "340px",
               }}>
-                {kingdom.artifact}
+                <KingdomText id={kingdom.id} field="artifact" />
               </h3>
 
               <p style={{
@@ -459,7 +460,7 @@ export default function KingdomPage({ params }: PageProps) {
                 fontStyle: "italic",
                 marginBottom: "32px",
               }}>
-                {kingdom.name} · {kingdom.language}
+                <KingdomText id={kingdom.id} field="name" /> · <KingdomText id={kingdom.id} field="language" />
               </p>
 
               {/* Collect button */}

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Kingdom } from "@/types";
 import { TRAVEL_LORE } from "@/constants/scholars";
+import KingdomText from "./KingdomText";
 
 interface TravelLoreProps {
   kingdom: Kingdom;
@@ -42,7 +43,7 @@ export default function TravelLore({ kingdom, onComplete }: TravelLoreProps) {
           className="text-[var(--accent-gold)] text-xs tracking-widest uppercase"
           style={{ fontFamily: "var(--font-cinzel)" }}
         >
-          Travelling to · {kingdom.name}
+          Travelling to · <KingdomText id={kingdom.id} field="name" />
         </p>
 
         {/* Lore line */}

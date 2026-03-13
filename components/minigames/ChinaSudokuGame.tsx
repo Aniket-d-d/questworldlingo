@@ -151,7 +151,7 @@ function generatePuzzle(size: number): { solution: number[][]; puzzle: Cell[][];
   const totalCells = size * size;
   const givens = Math.max(size + 2, Math.floor(totalCells * 0.45));
   const positions = shuffle(Array.from({ length: totalCells }, (_, i) => i));
-  const puzzle = solution.map((row) => row.map((v) => v));
+  const puzzle: Cell[][] = solution.map((row) => row.map((v) => v));
   const fixed = Array.from({ length: size }, () => Array(size).fill(true));
 
   let removed = 0;

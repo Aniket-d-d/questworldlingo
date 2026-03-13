@@ -3,15 +3,9 @@
 import { useState } from "react";
 import Image from "next/image";
 import GameTitle from "./GameTitle";
-
-const LANGUAGES = [
-  { code: "en", label: "English" },
-  { code: "id", label: "Indonesian" },
-  { code: "ja", label: "Japanese" },
-  { code: "ko", label: "Korean" },
-  { code: "zh", label: "Chinese" },
-  { code: "bo", label: "Tibetan" },
-];
+import { DEFAULT_LANGUAGE, LANGUAGES } from "@/constants/languages";
+import type { LocaleCode } from "lingo.dev/spec";
+import { useLingoContext } from "@lingo.dev/compiler/react";
 
 interface GameHeaderProps {
   playerName?: string;
@@ -19,8 +13,20 @@ interface GameHeaderProps {
 }
 
 export default function GameHeader({ playerName, style }: GameHeaderProps) {
-  const [selectedLang, setSelectedLang] = useState("en");
+  const { locale, setLocale } = useLingoContext();
   const [langOpen, setLangOpen] = useState(false);
+
+  const selectedLang =
+    LANGUAGES.find((l) => l.code === locale) ?? LANGUAGES.find((l) => l.code === DEFAULT_LANGUAGE);
+
+  async function handleSelectLanguage(code: LocaleCode) {
+    if (code === locale) {
+      setLangOpen(false);
+      return;
+    }
+    await setLocale(code);
+    setLangOpen(false);
+  }
 
   return (
     <div
@@ -78,7 +84,7 @@ export default function GameHeader({ playerName, style }: GameHeaderProps) {
                 onMouseEnter={(e) => { e.currentTarget.style.color = "var(--accent-gold-light)"; }}
                 onMouseLeave={(e) => { e.currentTarget.style.color = "var(--text-muted)"; }}
               >
-                {LANGUAGES.find((l) => l.code === selectedLang)?.label}
+                {selectedLang?.label ?? "English"}
                 <span style={{ fontSize: "0.6rem" }}>{langOpen ? "▲" : "▼"}</span>
               </button>
 
@@ -93,21 +99,21 @@ export default function GameHeader({ playerName, style }: GameHeaderProps) {
                   {LANGUAGES.map((lang) => (
                     <div
                       key={lang.code}
-                      onClick={() => { setSelectedLang(lang.code); setLangOpen(false); }}
+                      onClick={() => handleSelectLanguage(lang.code)}
                       style={{
                         padding: "8px 14px",
                         fontFamily: "var(--font-cinzel)",
                         fontSize: "0.7rem",
                         letterSpacing: "0.08em",
-                        color: lang.code === selectedLang ? "var(--accent-gold-light)" : "var(--text-muted)",
+                        color: lang.code === selectedLang?.code ? "var(--accent-gold-light)" : "var(--text-muted)",
                         cursor: "pointer",
                         transition: "all 0.2s",
-                        backgroundColor: lang.code === selectedLang ? "var(--bg-secondary)" : "transparent",
+                        backgroundColor: lang.code === selectedLang?.code ? "var(--bg-secondary)" : "transparent",
                       }}
                       onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "var(--bg-secondary)"; e.currentTarget.style.color = "var(--accent-gold-light)"; }}
                       onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = lang.code === selectedLang ? "var(--bg-secondary)" : "transparent";
-                        e.currentTarget.style.color = lang.code === selectedLang ? "var(--accent-gold-light)" : "var(--text-muted)";
+                        e.currentTarget.style.backgroundColor = lang.code === selectedLang?.code ? "var(--bg-secondary)" : "transparent";
+                        e.currentTarget.style.color = lang.code === selectedLang?.code ? "var(--accent-gold-light)" : "var(--text-muted)";
                       }}
                     >
                       {lang.label}

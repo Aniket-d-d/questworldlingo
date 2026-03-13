@@ -11,16 +11,21 @@ interface PlayerSetupProps {
 
 export default function PlayerSetup({ onComplete }: PlayerSetupProps) {
   const [name, setName] = useState("");
-  const [error, setError] = useState("");
+  const [error, setError] = useState<"empty" | "too_long" | null>(null);
+
+  const ERROR_MESSAGES = {
+    empty: <>Please enter your name.</>,
+    too_long: <>Name must be 30 characters or less.</>,
+  } as const;
 
   function handleSubmit() {
     const trimmed = name.trim();
     if (!trimmed) {
-      setError("Please enter your name.");
+      setError("empty");
       return;
     }
     if (trimmed.length > 30) {
-      setError("Name must be 30 characters or less.");
+      setError("too_long");
       return;
     }
     onComplete(trimmed);
@@ -82,7 +87,7 @@ export default function PlayerSetup({ onComplete }: PlayerSetupProps) {
               value={name}
               onChange={(e) => {
                 setName(e.target.value);
-                setError("");
+                setError(null);
               }}
               placeholder="Enter your name"
               maxLength={30}
@@ -109,7 +114,7 @@ export default function PlayerSetup({ onComplete }: PlayerSetupProps) {
                 color: "#c0392b",
                 textAlign: "center",
               }}>
-                {error}
+                {ERROR_MESSAGES[error]}
               </p>
             )}
 

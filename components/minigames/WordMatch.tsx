@@ -1,11 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import type { ReactNode } from "react";
 import { WordPair } from "@/constants/miniGames";
 
 interface WordMatchProps {
   pairs: WordPair[];
-  language: string;
+  language: ReactNode;
   onComplete: (score: number, total: number) => void;
 }
 
