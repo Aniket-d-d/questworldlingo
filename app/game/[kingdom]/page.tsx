@@ -46,6 +46,39 @@ const SRIVIJAYA_BETWEEN_ROUNDS: Record<number, string> = {
   2: "Again the tiles yield to you. One final trial. Do not let your mind waver now.",
 };
 
+const JAPAN_CHOICES = [
+  {
+    level: 1 as const,
+    text: "I know only that Kukai crossed the sea to carry the Dharma back. I am here to honour that journey — and to bring Nalanda's manuscripts home.",
+    scholarResponse: "Kukai's crossing was more than a voyage — it was a vow. You speak with the honest quietness of a novice who understands devotion. I will give you a trial fit for a beginning mind. Prove that honesty runs deeper than words.",
+  },
+  {
+    level: 2 as const,
+    text: "Kukai brought the esoteric teachings from Tang China, which itself drew from Nalanda. This manuscript sits at that crossing — India, China, Japan, bound by one thread.",
+    scholarResponse: "You trace the lineage correctly. Three civilisations, one transmission — and you have followed it. A scholar's answer deserves a scholar's trial. Place your kings with care.",
+  },
+  {
+    level: 3 as const,
+    text: "Nalanda's fire did not stop the teachings. They moved through China, crossed the sea, and reached these islands. I will recover every surviving text — whatever the difficulty.",
+    scholarResponse: "Determination alone does not illuminate a sutra. Let us see if your mind is as relentless as your will. I will give you no easy ground. Prove yourself on the hardest board.",
+  },
+];
+
+const JAPAN_BETWEEN_ROUNDS: Record<number, string> = {
+  1: "The board yields to you. Stillness and precision — Kukai would recognise both. Once more.",
+  2: "Again the regions fall into order. One final trial. Do not let your focus break now.",
+};
+
+// Lookup maps for kingdoms that use the choice system
+const KINGDOM_CHOICES: Record<string, typeof SRIVIJAYA_CHOICES> = {
+  srivijaya: SRIVIJAYA_CHOICES,
+  japan: JAPAN_CHOICES,
+};
+const KINGDOM_BETWEEN_ROUNDS: Record<string, Record<number, string>> = {
+  srivijaya: SRIVIJAYA_BETWEEN_ROUNDS,
+  japan: JAPAN_BETWEEN_ROUNDS,
+};
+
 // Scholar's judgment after the player's first answer
 const JUDGMENT_RESPONSES: Record<string, string> = {
   srivijaya: "Your words carry the weight of genuine purpose. The fire that consumed Nalanda was not merely physical — it extinguished the light of a thousand scholars. I see in you the ember that remains. Ask me anything while you prove yourself.",
@@ -118,8 +151,8 @@ export default function KingdomPage({ params }: PageProps) {
   const chatEndRef = useRef<HTMLDivElement>(null);
   const [playerName, setPlayerName] = useState("");
 
-  // Srivijaya-specific: choice-gated difficulty + 3-round tracking
-  const [srivijayaDifficulty, setSrivijayaDifficulty] = useState<1 | 2 | 3 | null>(null);
+  // Choice-gated difficulty + 3-round tracking (Srivijaya & Japan)
+  const [chosenDifficulty, setChosenDifficulty] = useState<1 | 2 | 3 | null>(null);
   const [roundsCompleted, setRoundsCompleted] = useState(0);
   const [gameKey, setGameKey] = useState(0);
   const TOTAL_ROUNDS = 3;
@@ -190,13 +223,14 @@ export default function KingdomPage({ params }: PageProps) {
   }
 
   function handleGameComplete(score: number, _total: number) {
-    // Srivijaya: play 3 rounds before completing
-    if (kingdomSlug === "srivijaya" && srivijayaDifficulty !== null) {
+    // Choice-gated kingdoms: play 3 rounds before completing
+    const betweenRounds = KINGDOM_BETWEEN_ROUNDS[kingdomSlug];
+    if (betweenRounds && chosenDifficulty !== null) {
       const nextRound = roundsCompleted + 1;
       if (nextRound < TOTAL_ROUNDS) {
         setRoundsCompleted(nextRound);
         setGameKey((k) => k + 1);
-        addScholarMessage(SRIVIJAYA_BETWEEN_ROUNDS[nextRound] ?? "Once more.");
+        addScholarMessage(betweenRounds[nextRound] ?? "Once more.");
         return;
       }
     }
@@ -371,18 +405,18 @@ export default function KingdomPage({ params }: PageProps) {
             <div ref={chatEndRef} />
           </div>
 
-          {/* Input — choice buttons for Srivijaya question, free text otherwise */}
+          {/* Input — choice buttons for choice-gated kingdoms, free text otherwise */}
           {!artifactCollected ? (
-            kingdomSlug === "srivijaya" && chatPhase === "question" && srivijayaDifficulty === null ? (
+            KINGDOM_CHOICES[kingdomSlug] && chatPhase === "question" && chosenDifficulty === null ? (
               // Three choice buttons
               <div data-lingo-skip style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                {SRIVIJAYA_CHOICES.map((choice) => (
+                {KINGDOM_CHOICES[kingdomSlug].map((choice) => (
                   <button
                     key={choice.level}
                     disabled={typing}
                     onClick={() => {
                       if (typing) return;
-                      setSrivijayaDifficulty(choice.level);
+                      setChosenDifficulty(choice.level);
                       setMessages((m) => [...m, { role: "player", text: choice.text }]);
                       addScholarMessage(choice.scholarResponse, () => setChatPhase("free_chat"));
                     }}
@@ -471,21 +505,21 @@ export default function KingdomPage({ params }: PageProps) {
           <BackButton />
 
           {!gameComplete ? (
-            // Srivijaya: locked until player picks a choice
-            kingdomSlug === "srivijaya" && srivijayaDifficulty === null ? (
+            // Locked until player picks a choice (for choice-gated kingdoms)
+            KINGDOM_CHOICES[kingdomSlug] && chosenDifficulty === null ? (
               <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", gap: "16px" }}>
                 <p style={{ fontFamily: "var(--font-cinzel)", fontSize: "1.6rem", color: "var(--border-gold)" }}>⊘</p>
                 <p style={{ fontFamily: "var(--font-cinzel)", fontSize: "0.65rem", letterSpacing: "0.2em", textTransform: "uppercase", color: "var(--text-muted)", textAlign: "center" }}>
                   The Trial Awaits
                 </p>
                 <p style={{ fontFamily: "var(--font-crimson)", fontSize: "0.95rem", color: "var(--text-muted)", fontStyle: "italic", textAlign: "center", maxWidth: "280px" }}>
-                  Answer Dharmakirti&apos;s question to unlock your trial.
+                  Answer {config.name.split(" ")[0]}&apos;s question to unlock your trial.
                 </p>
               </div>
             ) : KingdomGame ? (
               <>
-                {/* Round counter for Srivijaya */}
-                {kingdomSlug === "srivijaya" && (
+                {/* Round counter for choice-gated kingdoms */}
+                {KINGDOM_CHOICES[kingdomSlug] && chosenDifficulty !== null && (
                   <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px" }}>
                     <p style={{ fontFamily: "var(--font-cinzel)", fontSize: "0.6rem", letterSpacing: "0.18em", textTransform: "uppercase", color: "var(--accent-gold)" }}>
                       Round {roundsCompleted + 1} of {TOTAL_ROUNDS}
@@ -504,7 +538,7 @@ export default function KingdomPage({ params }: PageProps) {
                 <KingdomGame
                   key={gameKey}
                   pairCount={pairCount}
-                  {...(kingdomSlug === "srivijaya" && srivijayaDifficulty !== null ? { difficulty: srivijayaDifficulty, currentRound: roundsCompleted + 1, totalRounds: TOTAL_ROUNDS } : {})}
+                  {...(KINGDOM_CHOICES[kingdomSlug] && chosenDifficulty !== null ? { difficulty: chosenDifficulty, currentRound: roundsCompleted + 1, totalRounds: TOTAL_ROUNDS } : {})}
                   onComplete={handleGameComplete}
                 />
               </>

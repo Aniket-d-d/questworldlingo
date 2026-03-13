@@ -3,6 +3,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
 interface Props {
+  difficulty?: 1 | 2 | 3;
+  currentRound?: number;
+  totalRounds?: number;
   onComplete: (score: number, total: number) => void;
 }
 
@@ -112,9 +115,11 @@ function createEmptyBoard(size: number): CellState[][] {
   );
 }
 
-export default function JapanKingsGame({ onComplete }: Props) {
+export default function JapanKingsGame({ difficulty, currentRound, totalRounds, onComplete }: Props) {
+  // When difficulty is set, only play that single level; otherwise progress through all 3
+  const activeLevels = difficulty ? [LEVELS[difficulty - 1]] : LEVELS;
   const [levelIndex, setLevelIndex] = useState(0);
-  const [size, setSize] = useState(LEVELS[0]);
+  const [size, setSize] = useState(activeLevels[0]);
   const [regions, setRegions] = useState<number[][] | null>(null);
   const [board, setBoard] = useState<CellState[][]>(() => createEmptyBoard(LEVELS[0]));
   const [history, setHistory] = useState<CellState[][][]>([]);
@@ -131,7 +136,7 @@ export default function JapanKingsGame({ onComplete }: Props) {
   }, []);
 
   useEffect(() => {
-    const nextSize = LEVELS[levelIndex];
+    const nextSize = activeLevels[levelIndex];
     setSize(nextSize);
     setStatus("loading");
     if (advanceTimerRef.current) {
@@ -247,7 +252,7 @@ export default function JapanKingsGame({ onComplete }: Props) {
 
   useEffect(() => {
     if (!isWin || status !== "playing") return;
-    if (levelIndex < LEVELS.length - 1) {
+    if (levelIndex < activeLevels.length - 1) {
       setStatus("level_complete");
       if (advanceTimerRef.current) clearTimeout(advanceTimerRef.current);
       advanceTimerRef.current = setTimeout(() => {
@@ -261,7 +266,7 @@ export default function JapanKingsGame({ onComplete }: Props) {
     if (advanceTimerRef.current) clearTimeout(advanceTimerRef.current);
     advanceTimerRef.current = setTimeout(() => {
       advanceTimerRef.current = null;
-      onComplete(LEVELS.length, LEVELS.length);
+      onComplete(activeLevels.length, activeLevels.length);
     }, 800);
   }, [isWin, status, levelIndex, onComplete]);
 
@@ -414,11 +419,33 @@ export default function JapanKingsGame({ onComplete }: Props) {
               color: "var(--text-muted)",
               marginBottom: "6px",
             }}>
-              Level
+              {currentRound && totalRounds ? "Round" : "Level"}
             </p>
-            <p style={{ fontFamily: "var(--font-cinzel)", color: "var(--accent-gold-light)", fontSize: "1.2rem" }}>
-              {levelIndex + 1} / {LEVELS.length}
-            </p>
+            {currentRound && totalRounds ? (
+              <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
+                {Array.from({ length: totalRounds }, (_, i) => {
+                  const done = i + 1 < currentRound;
+                  const active = i + 1 === currentRound;
+                  return (
+                    <div key={i} style={{
+                      width: "22px", height: "22px",
+                      border: `1px solid ${done ? "var(--accent-gold)" : active ? "var(--accent-gold-light)" : "var(--border-gold)"}`,
+                      background: done ? "rgba(201,146,42,0.15)" : "transparent",
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      fontFamily: "var(--font-cinzel)", fontSize: "0.58rem",
+                      color: done ? "var(--accent-gold)" : active ? "var(--accent-gold-light)" : "var(--text-muted)",
+                      transition: "all 0.4s",
+                    }}>
+                      {done ? "✓" : i + 1}
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <p style={{ fontFamily: "var(--font-cinzel)", color: "var(--accent-gold-light)", fontSize: "1.2rem" }}>
+                {levelIndex + 1} / {activeLevels.length}
+              </p>
+            )}
           </div>
 
           <div style={{ border: "1px solid var(--border-gold)", padding: "12px", background: "var(--bg-card)" }}>
