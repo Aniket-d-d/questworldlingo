@@ -2,6 +2,7 @@
 
 import { use, useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useLingoContext } from "@lingo.dev/compiler/react";
 import Image from "next/image";
 import { KINGDOMS } from "@/constants/story";
 import { SCHOLAR_CONFIGS } from "@/constants/scholars";
@@ -150,7 +151,16 @@ const KINGDOM_BETWEEN_ROUNDS: Record<string, Record<number, string>> = {
   tibet: TIBET_BETWEEN_ROUNDS,
 };
 
-// Scholar's judgment after the player's first answer
+// Scholar's opening line when the player chooses free AI chat
+const AI_CHAT_OPEN: Record<string, string> = {
+  srivijaya: "Speak then. Tell me in your own words — why you are here, what you know, what drives you. I will judge from your own tongue what trial you deserve.",
+  japan:     "Words given freely carry more truth than chosen answers. Speak. I am listening.",
+  korea:     "We carved this knowledge so the worthy could receive it. Show me through your own words that you are worthy.",
+  china:     "Shen Kuo observed all things with an open mind. Let your words be as unguarded. Tell me what you know.",
+  tibet:     "Come then. Speak as you would to an old friend. The mountains judge only sincerity.",
+};
+
+/* Static scholar responses — replaced by AI chat (Gemini). Kept for reference.
 const JUDGMENT_RESPONSES: Record<string, string> = {
   srivijaya: "Your words carry the weight of genuine purpose. The fire that consumed Nalanda was not merely physical — it extinguished the light of a thousand scholars. I see in you the ember that remains. Ask me anything while you prove yourself.",
   japan:     "Stillness before the answer reveals more than the answer itself. You have considered carefully. The Dharma crossed vast seas to reach us. Speak freely — I am listening.",
@@ -159,7 +169,6 @@ const JUDGMENT_RESPONSES: Record<string, string> = {
   tibet:     "We have kept these manuscripts for forty years, waiting for someone worthy. Your words suggest you may be that person. Ask what you wish.",
 };
 
-// Rotating free-chat responses (cycles round-robin)
 const FREE_CHAT_RESPONSES: Record<string, string[]> = {
   srivijaya: [
     "The sea routes between Srivijaya and Nalanda carried more than spices — they carried entire lineages of thought.",
@@ -192,6 +201,7 @@ const FREE_CHAT_RESPONSES: Record<string, string[]> = {
     "We have texts here that exist nowhere else on earth. That knowledge will not be lost again. Not while we draw breath.",
   ],
 };
+*/
 
 // Scholar's message when the player completes the game
 const GAME_COMPLETE_RESPONSES: Record<string, string> = {
@@ -214,9 +224,9 @@ export default function KingdomPage({ params, searchParams }: PageProps) {
   const kingdom = KINGDOMS.find((k) => k.id === kingdomSlug);
   const config = SCHOLAR_CONFIGS[kingdomSlug];
 
+  const { locale } = useLingoContext();
+
   const [messages, setMessages] = useState<ChatMessage[]>([]);
-  // const [input, setInput] = useState("");         // free-chat form — commented out
-  // const [freeChatTurn, setFreeChatTurn] = useState(0); // free-chat form — commented out
   const [typing, setTyping] = useState(false);
   const [chatPhase, setChatPhase] = useState<ChatPhase>("question");
   const [gameComplete, setGameComplete] = useState(false);
@@ -224,6 +234,11 @@ export default function KingdomPage({ params, searchParams }: PageProps) {
   const [verdict] = useState<Verdict>("WORTHY");
   const chatEndRef = useRef<HTMLDivElement>(null);
   const [playerName, setPlayerName] = useState("");
+
+  // AI chat mode state
+  const [aiChatMode, setAiChatMode] = useState(false);
+  const [aiInput, setAiInput] = useState("");
+  const [aiHistory, setAiHistory] = useState<{ role: "user" | "assistant"; content: string }[]>([]);
 
   // Choice-gated difficulty + 3-round tracking (Srivijaya & Japan)
   const [chosenDifficulty, setChosenDifficulty] = useState<1 | 2 | 3 | null>(null);
@@ -275,28 +290,38 @@ export default function KingdomPage({ params, searchParams }: PageProps) {
     }, 1500);
   }
 
-  /* FREE-CHAT HANDLER — commented out, may be re-enabled later
-  function handleSend() {
-    if (!input.trim() || typing) return;
 
-    const playerMsg = input.trim();
-    setInput("");
-    setMessages((m) => [...m, { role: "player", text: playerMsg }]);
+  async function handleAiSend() {
+    if (!aiInput.trim() || typing) return;
+    const msg = aiInput.trim();
+    setAiInput("");
+    setMessages((m) => [...m, { role: "player", text: msg }]);
+    setTyping(true);
 
-    if (chatPhase === "question") {
-      addScholarMessage(
-        JUDGMENT_RESPONSES[kingdomSlug] ?? "Your words are heard. Speak freely.",
-        () => setChatPhase("free_chat"),
-      );
-    } else {
-      // Free chat — cycle through responses
-      const pool = FREE_CHAT_RESPONSES[kingdomSlug] ?? ["I am listening."];
-      const reply = pool[freeChatTurn % pool.length];
-      setFreeChatTurn((t) => t + 1);
-      addScholarMessage(reply);
+    try {
+      const res = await fetch(`/api/chat/${kingdomSlug}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: msg, history: aiHistory, locale }),
+      });
+      const data = await res.json();
+      setTyping(false);
+      const reply: string = data.reply ?? "The scholar is silent.";
+      setMessages((m) => [...m, { role: "scholar", text: reply }]);
+      setAiHistory((h) => [
+        ...h,
+        { role: "user" as const, content: msg },
+        { role: "assistant" as const, content: reply },
+      ]);
+      if (data.suggestedLevel && chosenDifficulty === null) {
+        setChosenDifficulty(data.suggestedLevel);
+        setChatPhase("free_chat");
+      }
+    } catch {
+      setTyping(false);
+      setMessages((m) => [...m, { role: "scholar", text: "The connection falters. Try speaking again." }]);
     }
   }
-  */
 
   function handleGameComplete(score: number, _total: number) {
     // Games-only mode: single round, no chat, just show complete screen
@@ -537,10 +562,70 @@ export default function KingdomPage({ params, searchParams }: PageProps) {
             <div ref={chatEndRef} />
           </div>
 
-          {/* Input — choice buttons for choice-gated kingdoms, free text otherwise */}
+          {/* Input — choice buttons, AI chat form, or nothing */}
           {!artifactCollected ? (
-            KINGDOM_CHOICES[kingdomSlug] && chatPhase === "question" && chosenDifficulty === null ? (
-              // Three choice buttons
+            aiChatMode ? (
+              // AI-powered free chat form
+              <div data-lingo-skip style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                <form onSubmit={(e) => { e.preventDefault(); handleAiSend(); }} style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                  <textarea
+                    value={aiInput}
+                    onChange={(e) => setAiInput(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleAiSend(); } }}
+                    placeholder="Speak to the scholar in any language..."
+                    rows={3}
+                    style={{
+                      background: "var(--bg-card)",
+                      border: "1px solid var(--border-gold)",
+                      color: "var(--text-primary)",
+                      padding: "10px 14px",
+                      fontFamily: "var(--font-crimson)",
+                      fontSize: "0.95rem",
+                      resize: "none",
+                      outline: "none",
+                      transition: "border-color 0.2s",
+                    }}
+                    onFocus={(e) => { e.currentTarget.style.borderColor = "var(--accent-gold)"; }}
+                    onBlur={(e) => { e.currentTarget.style.borderColor = "var(--border-gold)"; }}
+                  />
+                  <button
+                    type="submit"
+                    disabled={!aiInput.trim() || typing}
+                    style={{
+                      padding: "10px",
+                      border: "1px solid var(--accent-gold)",
+                      background: "transparent",
+                      color: "var(--accent-gold-light)",
+                      fontFamily: "var(--font-cinzel)",
+                      fontSize: "0.7rem",
+                      letterSpacing: "0.15em",
+                      textTransform: "uppercase",
+                      cursor: aiInput.trim() && !typing ? "pointer" : "not-allowed",
+                      opacity: aiInput.trim() && !typing ? 1 : 0.5,
+                      transition: "all 0.2s",
+                    }}
+                    onMouseEnter={(e) => { if (aiInput.trim() && !typing) { e.currentTarget.style.background = "var(--accent-gold)"; e.currentTarget.style.color = "var(--bg-primary)"; } }}
+                    onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--accent-gold-light)"; }}
+                  >
+                    Speak →
+                  </button>
+                </form>
+                {chosenDifficulty !== null && (
+                  <p style={{
+                    fontFamily: "var(--font-cinzel)",
+                    fontSize: "0.6rem",
+                    letterSpacing: "0.15em",
+                    textTransform: "uppercase",
+                    color: "var(--accent-gold)",
+                    textAlign: "center",
+                    opacity: 0.8,
+                  }}>
+                    ✦ Your trial awaits — see right
+                  </p>
+                )}
+              </div>
+            ) : KINGDOM_CHOICES[kingdomSlug] && chatPhase === "question" && chosenDifficulty === null ? (
+              // Three choice buttons + 4th AI chat option
               <div data-lingo-skip style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                 {KINGDOM_CHOICES[kingdomSlug].map((choice) => (
                   <button
@@ -571,6 +656,34 @@ export default function KingdomPage({ params, searchParams }: PageProps) {
                     {choice.text}
                   </button>
                 ))}
+                {/* 4th option — speak freely via AI */}
+                <button
+                  disabled={typing}
+                  onClick={() => {
+                    if (typing) return;
+                    setAiChatMode(true);
+                    setMessages((m) => [...m, { role: "player", text: "I would rather speak to you directly, scholar." }]);
+                    addScholarMessage(AI_CHAT_OPEN[kingdomSlug] ?? "Speak then. I am listening.");
+                  }}
+                  style={{
+                    textAlign: "left",
+                    padding: "10px 14px",
+                    border: "1px dashed var(--border-gold)",
+                    background: "transparent",
+                    color: "var(--text-muted)",
+                    fontFamily: "var(--font-crimson)",
+                    fontSize: "0.85rem",
+                    fontStyle: "italic",
+                    lineHeight: 1.5,
+                    cursor: typing ? "not-allowed" : "pointer",
+                    opacity: typing ? 0.4 : 0.75,
+                    transition: "all 0.2s",
+                  }}
+                  onMouseEnter={(e) => { if (!typing) { e.currentTarget.style.borderColor = "var(--accent-gold)"; e.currentTarget.style.color = "var(--text-secondary)"; e.currentTarget.style.opacity = "1"; } }}
+                  onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--border-gold)"; e.currentTarget.style.color = "var(--text-muted)"; e.currentTarget.style.opacity = "0.75"; }}
+                >
+                  I would rather speak to you directly...
+                </button>
               </div>
             ) : (
               null

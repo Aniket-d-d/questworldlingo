@@ -62,9 +62,3 @@ export const KINGDOMS: Kingdom[] = [
     miniGame: "bridges",
   },
 ];
-
-export const SCHOLAR_QUESTION_TYPES = {
-  justification: "Why do you deserve this manuscript?",
-  knowledge: "What do you know of our civilization?",
-  personal: "What do you miss most about Nalanda?",
-} as const;

@@ -204,6 +204,36 @@ export default function AboutGameModal({ onClose }: Props) {
                 and piece together a forgotten world.
               </p>
 
+              <p style={{
+                fontFamily: "var(--font-crimson)",
+                fontSize: "1.1rem",
+                color: "var(--text-primary)",
+                lineHeight: 1.8,
+                marginBottom: "20px",
+              }}>
+                Each scholar is powered by a live AI — when you choose to speak freely, you are having a real conversation
+                with{" "}
+                <span style={{ color: "var(--accent-gold-light)", fontStyle: "italic" }}>Google Gemini</span>. The scholar
+                reads your tone and attitude to decide the difficulty of your trial — humble and genuine earns an easy game,
+                rude or dismissive earns the hardest one. After your level is set, you can keep talking: ask anything about
+                the empire, its history, its scholars, or the world of 1203 AD. The scholar will answer in whatever language
+                you write in.
+              </p>
+
+              <p style={{
+                fontFamily: "var(--font-crimson)",
+                fontSize: "1.1rem",
+                color: "var(--text-primary)",
+                lineHeight: 1.8,
+                marginBottom: "20px",
+              }}>
+                If you have a language selected from the dropdown, the scholar's responses are translated in real time using
+                the{" "}
+                <span style={{ color: "var(--accent-gold-light)", fontStyle: "italic" }}>Lingo.dev Runtime SDK</span> —
+                so the conversation stays in your chosen language even when the AI responds. The rest of the game UI is
+                translated at build time using the Lingo.dev Compiler.
+              </p>
+
               <div style={{
                 borderLeft: "2px solid var(--border-gold)",
                 paddingLeft: "20px",
