@@ -9,6 +9,8 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "@lingo.dev/_sdk": "^0.16.0",
     "@lingo.dev/compiler": "^0.4.0",
     "next": "16.1.6",
     "react": "19.2.3",
