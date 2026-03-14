@@ -89,26 +89,18 @@ export default function WorldMap() {
 
         {/* ── Mode toggle ── */}
         <div className="stagger-line" style={{ display: "flex", marginBottom: "32px", border: "1px solid var(--border-gold)", animationDelay: "0.2s" }}>
-          {(["story", "games"] as GameMode[]).map((m) => (
-            <button
-              key={m}
-              onClick={() => setMode(m)}
-              style={{
-                padding: "10px 32px",
-                background: mode === m ? "var(--accent-gold)" : "transparent",
-                color: mode === m ? "var(--bg-primary)" : "var(--text-muted)",
-                fontFamily: "var(--font-cinzel)",
-                fontSize: "0.65rem",
-                letterSpacing: "0.2em",
-                textTransform: "uppercase",
-                border: "none",
-                cursor: "pointer",
-                transition: "all 0.2s",
-              }}
-            >
-              {m === "story" ? "Story Mode" : "Games Only"}
-            </button>
-          ))}
+          <button
+            onClick={() => setMode("story")}
+            style={{ padding: "10px 32px", background: mode === "story" ? "var(--accent-gold)" : "transparent", color: mode === "story" ? "var(--bg-primary)" : "var(--text-muted)", fontFamily: "var(--font-cinzel)", fontSize: "0.65rem", letterSpacing: "0.2em", textTransform: "uppercase", border: "none", cursor: "pointer", transition: "all 0.2s" }}
+          >
+            Story Mode
+          </button>
+          <button
+            onClick={() => setMode("games")}
+            style={{ padding: "10px 32px", background: mode === "games" ? "var(--accent-gold)" : "transparent", color: mode === "games" ? "var(--bg-primary)" : "var(--text-muted)", fontFamily: "var(--font-cinzel)", fontSize: "0.65rem", letterSpacing: "0.2em", textTransform: "uppercase", border: "none", cursor: "pointer", transition: "all 0.2s" }}
+          >
+            Games Only
+          </button>
         </div>
 
         {/* ── Stats bar ── */}
