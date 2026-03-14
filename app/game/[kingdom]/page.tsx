@@ -211,10 +211,10 @@ export default function KingdomPage({ params }: PageProps) {
   const config = SCHOLAR_CONFIGS[kingdomSlug];
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [input, setInput] = useState("");
+  // const [input, setInput] = useState("");         // free-chat form — commented out
+  // const [freeChatTurn, setFreeChatTurn] = useState(0); // free-chat form — commented out
   const [typing, setTyping] = useState(false);
   const [chatPhase, setChatPhase] = useState<ChatPhase>("question");
-  const [freeChatTurn, setFreeChatTurn] = useState(0);
   const [gameComplete, setGameComplete] = useState(false);
   const [artifactCollected, setArtifactCollected] = useState(false);
   const [verdict] = useState<Verdict>("WORTHY");
@@ -271,6 +271,7 @@ export default function KingdomPage({ params }: PageProps) {
     }, 1500);
   }
 
+  /* FREE-CHAT HANDLER — commented out, may be re-enabled later
   function handleSend() {
     if (!input.trim() || typing) return;
 
@@ -291,6 +292,7 @@ export default function KingdomPage({ params }: PageProps) {
       addScholarMessage(reply);
     }
   }
+  */
 
   function handleGameComplete(score: number, _total: number) {
     // Choice-gated kingdoms: play 3 rounds before completing
@@ -511,6 +513,8 @@ export default function KingdomPage({ params }: PageProps) {
                 ))}
               </div>
             ) : (
+              null
+              /* FREE-CHAT FORM — commented out, may be re-enabled later
               <form data-lingo-skip onSubmit={(e) => { e.preventDefault(); handleSend(); }} style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                 <textarea
                   value={input}
@@ -554,6 +558,7 @@ export default function KingdomPage({ params }: PageProps) {
                   Speak →
                 </button>
               </form>
+              */
             )
           ) : (
             <p data-lingo-skip style={{
