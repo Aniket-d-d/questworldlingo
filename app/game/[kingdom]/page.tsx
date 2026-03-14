@@ -87,16 +87,41 @@ const KOREA_CHOICES = [
   },
 ];
 
+const CHINA_CHOICES = [
+  {
+    level: 1 as const,
+    text: "Shen Kuo preserved these observations so others could build upon them. I come in that spirit — to collect, not to claim, and to carry the knowledge forward.",
+    scholarResponse: "Humility is the beginning of scholarship. Shen Kuo himself would have approved of that answer. I will give you the gentlest grid — prove your mind is as ordered as your intention.",
+  },
+  {
+    level: 2 as const,
+    text: "The Dream Pool Essays survived because Shen Kuo understood that knowledge must be recorded in order to travel. I am here to continue that journey.",
+    scholarResponse: "A scholar's answer. You understand the chain of transmission — India to Xuanzang, Xuanzang to Tang China, Tang to Song. Fit for a reasoned trial. Show me your precision.",
+  },
+  {
+    level: 3 as const,
+    text: "Xuanzang walked seventeen years for these texts. I will not stop until every surviving manuscript from Nalanda's lineage is gathered. Nothing will deter me.",
+    scholarResponse: "Resolve is easy to claim. The hardest grid will reveal whether yours is genuine. I will give you no quarter. Prove yourself worthy of Xuanzang's example.",
+  },
+];
+
+const CHINA_BETWEEN_ROUNDS: Record<number, string> = {
+  1: "The grid yields to a clear mind. Shen Kuo recorded ten thousand observations with that same patience. Once more.",
+  2: "Again the numbers settle into their proper place. One final trial. Do not let precision falter now.",
+};
+
 // Lookup maps for kingdoms that use the choice system
 const KINGDOM_CHOICES: Record<string, typeof SRIVIJAYA_CHOICES> = {
   srivijaya: SRIVIJAYA_CHOICES,
   japan: JAPAN_CHOICES,
   korea: KOREA_CHOICES,
+  china: CHINA_CHOICES,
 };
 // Only kingdoms that play multiple rounds (not Korea — Korea uses time pressure instead)
 const KINGDOM_BETWEEN_ROUNDS: Record<string, Record<number, string>> = {
   srivijaya: SRIVIJAYA_BETWEEN_ROUNDS,
   japan: JAPAN_BETWEEN_ROUNDS,
+  china: CHINA_BETWEEN_ROUNDS,
 };
 
 // Scholar's judgment after the player's first answer
