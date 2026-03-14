@@ -208,12 +208,7 @@ export default function WorldMap() {
                     {["I","II","III","IV","V"][KINGDOMS.indexOf(kingdom)]}
                   </span>
 
-                  <div className="flex items-center gap-2 mb-3">
-                    <div className="w-2 h-2 rounded-full bg-[var(--accent-gold)]" />
-                    <span className="text-xs tracking-widest uppercase text-[var(--text-muted)]" style={{ fontFamily: "var(--font-cinzel)" }}>
-                      Available
-                    </span>
-                  </div>
+                  <div className="mb-3" />
 
                   <h3 className="text-lg font-semibold text-[var(--accent-gold-light)] mb-1 leading-tight" style={{ fontFamily: "var(--font-cinzel)" }}>
                     <KingdomText id={kingdom.id} field="gameName" />
