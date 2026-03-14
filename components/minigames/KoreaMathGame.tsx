@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 
 interface Props {
+  difficulty?: 1 | 2 | 3;
   onComplete: (score: number, total: number) => void;
 }
 
@@ -76,7 +77,11 @@ function generateProblem(ops: Op[]): Problem {
   return generateDiv();
 }
 
-export default function KoreaMathGame({ onComplete }: Props) {
+const TIME_LIMITS: Record<number, number> = { 1: 60, 2: 45, 3: 30 };
+
+export default function KoreaMathGame({ difficulty, onComplete }: Props) {
+  const activeLevels = LEVELS;
+  const timeLimit = difficulty ? TIME_LIMITS[difficulty] : TOTAL_TIME_SECONDS;
   const [gameState, setGameState] = useState<"idle" | "running" | "complete">("idle");
   const [levelIndex, setLevelIndex] = useState(0);
   const [problems, setProblems] = useState<Problem[]>([]);
@@ -84,14 +89,14 @@ export default function KoreaMathGame({ onComplete }: Props) {
   const [input, setInput] = useState("");
   const [feedback, setFeedback] = useState<"idle" | "wrong" | "correct">("idle");
   const [status, setStatus] = useState<"playing" | "level_complete" | "complete">("playing");
-  const [timeLeft, setTimeLeft] = useState(TOTAL_TIME_SECONDS);
+  const [timeLeft, setTimeLeft] = useState(timeLimit);
   const [completedLevels, setCompletedLevels] = useState<Set<number>>(new Set());
   const [showTimeoutMessage, setShowTimeoutMessage] = useState(false);
   const advanceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const tickTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
-    const level = LEVELS[levelIndex];
+    const level = activeLevels[levelIndex];
     const nextProblems = Array.from({ length: PROBLEMS_PER_LEVEL }, () => generateProblem(level.ops));
     setProblems(nextProblems);
     setCurrent(0);
@@ -131,7 +136,7 @@ export default function KoreaMathGame({ onComplete }: Props) {
           setCompletedLevels(new Set());
           setStatus("playing");
           setShowTimeoutMessage(true);
-          return TOTAL_TIME_SECONDS;
+          return timeLimit;
         }
         return t - 1;
       });
@@ -143,7 +148,7 @@ export default function KoreaMathGame({ onComplete }: Props) {
     setGameState("running");
     setLevelIndex(0);
     setCompletedLevels(new Set());
-    setTimeLeft(TOTAL_TIME_SECONDS);
+    setTimeLeft(timeLimit);
   }
 
   function handleSubmit(e: React.FormEvent) {
@@ -161,7 +166,7 @@ export default function KoreaMathGame({ onComplete }: Props) {
           setInput("");
           setFeedback("idle");
         }, 450);
-      } else if (levelIndex < LEVELS.length - 1) {
+      } else if (levelIndex < activeLevels.length - 1) {
         setStatus("level_complete");
         setCompletedLevels((prev) => {
           const next = new Set(prev);
@@ -180,14 +185,14 @@ export default function KoreaMathGame({ onComplete }: Props) {
         });
         setGameState("complete");
         if (tickTimerRef.current) clearInterval(tickTimerRef.current);
-        advanceTimerRef.current = setTimeout(() => onComplete(LEVELS.length, LEVELS.length), 700);
+        advanceTimerRef.current = setTimeout(() => onComplete(activeLevels.length, activeLevels.length), 700);
       }
     } else {
       setFeedback("wrong");
     }
   }
 
-  const level = LEVELS[levelIndex];
+  const level = activeLevels[levelIndex];
   const problem = problems[current];
 
   return (
@@ -235,7 +240,7 @@ export default function KoreaMathGame({ onComplete }: Props) {
         <>
           {/* Level tracker */}
           <div style={{ display: "flex", justifyContent: "center", gap: "12px", marginBottom: "10px" }}>
-            {LEVELS.map((lvl, i) => {
+            {activeLevels.map((lvl, i) => {
               const isCurrent = i === levelIndex;
               const isComplete = completedLevels.has(i) || i < levelIndex;
               const color = isComplete ? "var(--accent-gold)" : isCurrent ? "var(--accent-gold-light)" : "var(--text-muted)";
@@ -259,6 +264,7 @@ export default function KoreaMathGame({ onComplete }: Props) {
           </div>
 
           {/* Timer */}
+
           <div style={{ textAlign: "center", marginBottom: "12px" }}>
             <p style={{
               fontFamily: "var(--font-cinzel)",

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 
 interface Props {
+  difficulty?: 1 | 2 | 3;
   onComplete: (score: number, total: number) => void;
 }
 
@@ -167,13 +168,14 @@ function generatePuzzle(size: number): { solution: number[][]; puzzle: Cell[][];
   return { solution, puzzle, regions, fixed };
 }
 
-export default function ChinaSudokuGame({ onComplete }: Props) {
+export default function ChinaSudokuGame({ difficulty, onComplete }: Props) {
+  const activeLevels = difficulty ? [LEVELS[difficulty - 1]] : LEVELS;
   const [levelIndex, setLevelIndex] = useState(0);
-  const [size, setSize] = useState(LEVELS[0]);
+  const [size, setSize] = useState(activeLevels[0]);
   const [regions, setRegions] = useState<number[][]>([]);
   const [fixed, setFixed] = useState<boolean[][]>([]);
-  const [grid, setGrid] = useState<Cell[][]>(createEmptyGrid(LEVELS[0]));
-  const [initialGrid, setInitialGrid] = useState<Cell[][]>(createEmptyGrid(LEVELS[0]));
+  const [grid, setGrid] = useState<Cell[][]>(createEmptyGrid(activeLevels[0]));
+  const [initialGrid, setInitialGrid] = useState<Cell[][]>(createEmptyGrid(activeLevels[0]));
   const [history, setHistory] = useState<Cell[][][]>([]);
   const [selectedNumber, setSelectedNumber] = useState<number | null>(null);
   const [activeCell, setActiveCell] = useState<{ r: number; c: number } | null>(null);
@@ -182,7 +184,7 @@ export default function ChinaSudokuGame({ onComplete }: Props) {
   const advanceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    const nextSize = LEVELS[levelIndex];
+    const nextSize = activeLevels[levelIndex];
     setSize(nextSize);
     const data = generatePuzzle(nextSize);
     setRegions(data.regions);
@@ -237,14 +239,14 @@ export default function ChinaSudokuGame({ onComplete }: Props) {
 
     const filled = grid.flat().every((v) => v !== null);
     if (filled && nextConflicts.size === 0 && status === "playing") {
-      if (levelIndex < LEVELS.length - 1) {
+      if (levelIndex < activeLevels.length - 1) {
         setStatus("level_complete");
         advanceTimerRef.current = setTimeout(() => {
           setLevelIndex((i) => i + 1);
         }, 900);
       } else {
         setStatus("complete");
-        advanceTimerRef.current = setTimeout(() => onComplete(LEVELS.length, LEVELS.length), 700);
+        advanceTimerRef.current = setTimeout(() => onComplete(activeLevels.length, activeLevels.length), 700);
       }
     }
   }, [grid, regions, size, status, levelIndex, onComplete]);
@@ -355,7 +357,7 @@ export default function ChinaSudokuGame({ onComplete }: Props) {
 
       {/* Level tracker */}
       <div style={{ display: "flex", justifyContent: "center", gap: "10px", marginBottom: "14px" }}>
-        {LEVELS.map((lvl, i) => {
+        {activeLevels.map((lvl, i) => {
           const isCurrent = i === levelIndex;
           const color = isCurrent ? "var(--accent-gold-light)" : "var(--text-muted)";
           return (

@@ -4,6 +4,9 @@ import { useState } from "react";
 import Image from "next/image";
 import GameTitle from "@/components/ui/GameTitle";
 import PageShell from "@/components/ui/PageShell";
+import { DEFAULT_LANGUAGE, LANGUAGES } from "@/constants/languages";
+import type { LocaleCode } from "lingo.dev/spec";
+import { useLingoContext } from "@lingo.dev/compiler/react";
 
 interface PlayerSetupProps {
   onComplete: (name: string) => void;
@@ -12,6 +15,17 @@ interface PlayerSetupProps {
 export default function PlayerSetup({ onComplete }: PlayerSetupProps) {
   const [name, setName] = useState("");
   const [error, setError] = useState<"empty" | "too_long" | null>(null);
+  const { locale, setLocale } = useLingoContext();
+  const [langOpen, setLangOpen] = useState(false);
+
+  const selectedLang =
+    LANGUAGES.find((l) => l.code === locale) ?? LANGUAGES.find((l) => l.code === DEFAULT_LANGUAGE);
+
+  async function handleSelectLanguage(code: LocaleCode) {
+    if (code === locale) { setLangOpen(false); return; }
+    await setLocale(code);
+    setLangOpen(false);
+  }
 
   const ERROR_MESSAGES = {
     empty: <>Please enter your name.</>,
@@ -35,12 +49,36 @@ export default function PlayerSetup({ onComplete }: PlayerSetupProps) {
     <PageShell style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
 
       {/* Top bar */}
-      <div style={{
-        display: "flex",
-        justifyContent: "flex-end",
-        padding: "28px 48px 0",
-      }}>
-        <GameTitle />
+      <div style={{ display: "flex", justifyContent: "flex-end", padding: "28px 48px 0" }}>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "8px" }}>
+          <GameTitle />
+          <div style={{ position: "relative" }}>
+            <button
+              onClick={() => setLangOpen((o) => !o)}
+              style={{ display: "flex", alignItems: "center", gap: "6px", padding: "0", border: "none", background: "transparent", color: "var(--text-muted)", fontFamily: "var(--font-cinzel)", fontSize: "0.7rem", letterSpacing: "0.1em", cursor: "pointer", transition: "color 0.2s" }}
+              onMouseEnter={(e) => { e.currentTarget.style.color = "var(--accent-gold-light)"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.color = "var(--text-muted)"; }}
+            >
+              {selectedLang?.label ?? "English"}
+              <span style={{ fontSize: "0.6rem" }}>{langOpen ? "▲" : "▼"}</span>
+            </button>
+            {langOpen && (
+              <div style={{ position: "absolute", top: "calc(100% + 4px)", right: 0, background: "var(--bg-card)", border: "1px solid var(--border-gold)", minWidth: "140px", zIndex: 100 }}>
+                {LANGUAGES.map((lang) => (
+                  <div
+                    key={lang.code}
+                    onClick={() => handleSelectLanguage(lang.code)}
+                    style={{ padding: "8px 14px", fontFamily: "var(--font-cinzel)", fontSize: "0.7rem", letterSpacing: "0.08em", color: lang.code === selectedLang?.code ? "var(--accent-gold-light)" : "var(--text-muted)", cursor: "pointer", transition: "all 0.2s", backgroundColor: lang.code === selectedLang?.code ? "var(--bg-secondary)" : "transparent" }}
+                    onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "var(--bg-secondary)"; e.currentTarget.style.color = "var(--accent-gold-light)"; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = lang.code === selectedLang?.code ? "var(--bg-secondary)" : "transparent"; e.currentTarget.style.color = lang.code === selectedLang?.code ? "var(--accent-gold-light)" : "var(--text-muted)"; }}
+                  >
+                    {lang.label}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* Main content */}

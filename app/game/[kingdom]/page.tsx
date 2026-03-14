@@ -15,12 +15,140 @@ import KingdomText from "@/components/game/KingdomText";
 
 interface PageProps {
   params: Promise<{ kingdom: string }>;
+  searchParams: Promise<{ mode?: string; level?: string }>;
 }
 
 interface ChatMessage {
   role: "scholar" | "player";
   text: string;
 }
+
+// Srivijaya — three choices the player picks from instead of free text
+const SRIVIJAYA_CHOICES = [
+  {
+    level: 1 as const,
+    text: "My father was a scholar at Nalanda. I seek to rebuild what he loved — for him, and for the world.",
+    scholarResponse: "Your grief is real. Your purpose is clear. The fire that took Nalanda took many fathers, and it is right that a son should answer it with his whole life. I will give you the gentlest trial — prove your memory is worthy of what you carry.",
+  },
+  {
+    level: 2 as const,
+    text: "I travel to recover all manuscripts scattered after Nalanda's fall. This correspondence belongs with the rest.",
+    scholarResponse: "A collector's purpose — honest, if measured. The correspondence has waited eight years; it can wait a little longer to test you. Show me your memory is equal to the task.",
+  },
+  {
+    level: 3 as const,
+    text: "Because I will not stop until Nalanda lives again. Whatever the cost.",
+    scholarResponse: "Bold words from someone standing on ash. Your determination is clear — now let us see if your mind matches it. I will give you no mercy in this trial. Prove yourself.",
+  },
+];
+
+const SRIVIJAYA_BETWEEN_ROUNDS: Record<number, string> = {
+  1: "Your memory holds. The pattern remains clear in your mind — as it must. Once more.",
+  2: "Again the tiles yield to you. One final trial. Do not let your mind waver now.",
+};
+
+const JAPAN_CHOICES = [
+  {
+    level: 1 as const,
+    text: "I know only that Kukai crossed the sea to carry the Dharma back. I am here to honour that journey — and to bring Nalanda's manuscripts home.",
+    scholarResponse: "Kukai's crossing was more than a voyage — it was a vow. You speak with the honest quietness of a novice who understands devotion. I will give you a trial fit for a beginning mind. Prove that honesty runs deeper than words.",
+  },
+  {
+    level: 2 as const,
+    text: "Kukai brought the esoteric teachings from Tang China, which itself drew from Nalanda. This manuscript sits at that crossing — India, China, Japan, bound by one thread.",
+    scholarResponse: "You trace the lineage correctly. Three civilisations, one transmission — and you have followed it. A scholar's answer deserves a scholar's trial. Place your kings with care.",
+  },
+  {
+    level: 3 as const,
+    text: "Nalanda's fire did not stop the teachings. They moved through China, crossed the sea, and reached these islands. I will recover every surviving text — whatever the difficulty.",
+    scholarResponse: "Determination alone does not illuminate a sutra. Let us see if your mind is as relentless as your will. I will give you no easy ground. Prove yourself on the hardest board.",
+  },
+];
+
+const JAPAN_BETWEEN_ROUNDS: Record<number, string> = {
+  1: "The board yields to you. Stillness and precision — Kukai would recognise both. Once more.",
+  2: "Again the regions fall into order. One final trial. Do not let your focus break now.",
+};
+
+const KOREA_CHOICES = [
+  {
+    level: 1 as const,
+    text: "Because Nalanda's wisdom lives in those blocks as much as in any Indian text. I am here to carry it home, not to claim it as mine.",
+    scholarResponse: "Humility noted. I will give you sixty seconds — enough time for a careful mind. Three levels of arithmetic, each harder than the last. Begin when you are ready.",
+  },
+  {
+    level: 2 as const,
+    text: "Because preservation is only half the work. The other half is transmission. You carved so knowledge would not die — I am here to ensure it continues to travel.",
+    scholarResponse: "A reasoned answer. Forty-five seconds. A scribe who copies without haste still copies precisely. Prove that your mind moves with equal care under pressure.",
+  },
+  {
+    level: 3 as const,
+    text: "Because I will not stop until every surviving text from Nalanda's lineage is gathered. This excerpt belongs in that gathering — and nothing will deter me.",
+    scholarResponse: "Then you will not mind thirty seconds. We carved eighty-one thousand blocks under Mongol threat. You will solve three levels of arithmetic under time. Show me your resolve.",
+  },
+];
+
+const CHINA_CHOICES = [
+  {
+    level: 1 as const,
+    text: "Shen Kuo preserved these observations so others could build upon them. I come in that spirit — to collect, not to claim, and to carry the knowledge forward.",
+    scholarResponse: "Humility is the beginning of scholarship. Shen Kuo himself would have approved of that answer. I will give you the gentlest grid — prove your mind is as ordered as your intention.",
+  },
+  {
+    level: 2 as const,
+    text: "The Dream Pool Essays survived because Shen Kuo understood that knowledge must be recorded in order to travel. I am here to continue that journey.",
+    scholarResponse: "A scholar's answer. You understand the chain of transmission — India to Xuanzang, Xuanzang to Tang China, Tang to Song. Fit for a reasoned trial. Show me your precision.",
+  },
+  {
+    level: 3 as const,
+    text: "Xuanzang walked seventeen years for these texts. I will not stop until every surviving manuscript from Nalanda's lineage is gathered. Nothing will deter me.",
+    scholarResponse: "Resolve is easy to claim. The hardest grid will reveal whether yours is genuine. I will give you no quarter. Prove yourself worthy of Xuanzang's example.",
+  },
+];
+
+const CHINA_BETWEEN_ROUNDS: Record<number, string> = {
+  1: "The grid yields to a clear mind. Shen Kuo recorded ten thousand observations with that same patience. Once more.",
+  2: "Again the numbers settle into their proper place. One final trial. Do not let precision falter now.",
+};
+
+const TIBET_CHOICES = [
+  {
+    level: 1 as const,
+    text: "I come in humility. Nalanda's texts survived because monks like you preserved them without asking for recognition. I seek only to continue that work.",
+    scholarResponse: "Humility is the first discipline of the mountains. The monks who carried these manuscripts across the passes asked nothing for themselves either. I will give you the gentlest trial — prove your mind is as steady as your words.",
+  },
+  {
+    level: 2 as const,
+    text: "I know the manuscripts arrived here before the smoke had settled over Nalanda. You anticipated the fall. I am here to ensure they reach the scholars who still need them.",
+    scholarResponse: "You have read carefully. Yes — word reached us before the fires were lit. A scholar's answer deserves a scholar's trial. Show me that your mind can find the connections others miss.",
+  },
+  {
+    level: 3 as const,
+    text: "The mountains will not stop me. I have followed this knowledge through deserts, across seas, and up these slopes. I will not leave without the manuscripts.",
+    scholarResponse: "We have heard that claim before — from those who turned back at the first pass. The hardest trial will tell me whether your resolve is genuine. I will give you no quarter. Prove yourself.",
+  },
+];
+
+const TIBET_BETWEEN_ROUNDS: Record<number, string> = {
+  1: "The bridges hold. Your mind finds connections where others see only gaps. Once more.",
+  2: "Again the islands yield to you. One final trial. Do not lose the thread now.",
+};
+
+// Lookup maps for kingdoms that use the choice system
+const KINGDOM_CHOICES: Record<string, typeof SRIVIJAYA_CHOICES> = {
+  srivijaya: SRIVIJAYA_CHOICES,
+  japan: JAPAN_CHOICES,
+  korea: KOREA_CHOICES,
+  china: CHINA_CHOICES,
+  tibet: TIBET_CHOICES,
+};
+// Only kingdoms that play multiple rounds (not Korea — Korea uses time pressure instead)
+const KINGDOM_BETWEEN_ROUNDS: Record<string, Record<number, string>> = {
+  srivijaya: SRIVIJAYA_BETWEEN_ROUNDS,
+  japan: JAPAN_BETWEEN_ROUNDS,
+  china: CHINA_BETWEEN_ROUNDS,
+  tibet: TIBET_BETWEEN_ROUNDS,
+};
 
 // Scholar's judgment after the player's first answer
 const JUDGMENT_RESPONSES: Record<string, string> = {
@@ -76,23 +204,32 @@ const GAME_COMPLETE_RESPONSES: Record<string, string> = {
 
 type ChatPhase = "question" | "free_chat";
 
-export default function KingdomPage({ params }: PageProps) {
+export default function KingdomPage({ params, searchParams }: PageProps) {
   const { kingdom: kingdomSlug } = use(params);
+  const { mode: pageMode, level: pageLevel } = use(searchParams);
+  const isGamesMode = pageMode === "games";
+  const gamesLevel = (Number(pageLevel) as 1 | 2 | 3) || 1;
   const router = useRouter();
 
   const kingdom = KINGDOMS.find((k) => k.id === kingdomSlug);
   const config = SCHOLAR_CONFIGS[kingdomSlug];
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [input, setInput] = useState("");
+  // const [input, setInput] = useState("");         // free-chat form — commented out
+  // const [freeChatTurn, setFreeChatTurn] = useState(0); // free-chat form — commented out
   const [typing, setTyping] = useState(false);
   const [chatPhase, setChatPhase] = useState<ChatPhase>("question");
-  const [freeChatTurn, setFreeChatTurn] = useState(0);
   const [gameComplete, setGameComplete] = useState(false);
   const [artifactCollected, setArtifactCollected] = useState(false);
   const [verdict] = useState<Verdict>("WORTHY");
   const chatEndRef = useRef<HTMLDivElement>(null);
   const [playerName, setPlayerName] = useState("");
+
+  // Choice-gated difficulty + 3-round tracking (Srivijaya & Japan)
+  const [chosenDifficulty, setChosenDifficulty] = useState<1 | 2 | 3 | null>(null);
+  const [roundsCompleted, setRoundsCompleted] = useState(0);
+  const [gameKey, setGameKey] = useState(0);
+  const TOTAL_ROUNDS = 3;
 
   useEffect(() => {
     try {
@@ -138,6 +275,7 @@ export default function KingdomPage({ params }: PageProps) {
     }, 1500);
   }
 
+  /* FREE-CHAT HANDLER — commented out, may be re-enabled later
   function handleSend() {
     if (!input.trim() || typing) return;
 
@@ -158,8 +296,27 @@ export default function KingdomPage({ params }: PageProps) {
       addScholarMessage(reply);
     }
   }
+  */
 
   function handleGameComplete(score: number, _total: number) {
+    // Games-only mode: single round, no chat, just show complete screen
+    if (isGamesMode) {
+      setGameComplete(true);
+      return;
+    }
+
+    // Choice-gated kingdoms: play 3 rounds before completing
+    const betweenRounds = KINGDOM_BETWEEN_ROUNDS[kingdomSlug];
+    if (betweenRounds && chosenDifficulty !== null) {
+      const nextRound = roundsCompleted + 1;
+      if (nextRound < TOTAL_ROUNDS) {
+        setRoundsCompleted(nextRound);
+        setGameKey((k) => k + 1);
+        addScholarMessage(betweenRounds[nextRound] ?? "Once more.");
+        return;
+      }
+    }
+
     setGameComplete(true);
 
     // Save progress and tokens (artifact saved on explicit Collect)
@@ -203,6 +360,56 @@ export default function KingdomPage({ params }: PageProps) {
     setTimeout(() => router.push("/game"), 1800);
   }
 
+  // ── Games-only mode render ──────────────────────────────────────────────
+  if (isGamesMode) {
+    return (
+      <PageShell style={{ height: "100vh", overflow: "hidden", display: "flex", flexDirection: "column", minHeight: "unset" }}>
+        <GameHeader playerName={playerName} />
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", padding: "16px 40px 24px" }}>
+          <BackButton />
+          {!gameComplete ? (
+            KingdomGame ? (
+              <KingdomGame
+                key={gameKey}
+                pairCount={pairCount}
+                difficulty={gamesLevel}
+                onComplete={handleGameComplete}
+              />
+            ) : (
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%" }}>
+                <p style={{ fontFamily: "var(--font-crimson)", color: "var(--text-muted)", fontStyle: "italic" }}>
+                  No challenge data available.
+                </p>
+              </div>
+            )
+          ) : (
+            <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "16px", animation: "panelFadeIn 0.6s ease forwards" }}>
+              <p style={{ fontFamily: "var(--font-cinzel)", fontSize: "2.5rem", color: "var(--accent-gold)", opacity: 0.5 }}>✦</p>
+              <p style={{ fontFamily: "var(--font-cinzel)", fontSize: "0.6rem", letterSpacing: "0.25em", textTransform: "uppercase", color: "var(--accent-gold)" }}>
+                Game Complete
+              </p>
+              <h3 style={{ fontFamily: "var(--font-cinzel)", fontSize: "1.2rem", fontWeight: 700, color: "var(--text-primary)", textAlign: "center" }}>
+                <KingdomText id={kingdom.id} field="name" />
+              </h3>
+              <p style={{ fontFamily: "var(--font-crimson)", fontSize: "0.95rem", color: "var(--text-muted)", fontStyle: "italic" }}>
+                Level {gamesLevel} · Completed
+              </p>
+              <button
+                onClick={() => router.push("/game")}
+                style={{ marginTop: "16px", padding: "14px 40px", border: "1px solid var(--accent-gold)", background: "transparent", color: "var(--accent-gold-light)", fontFamily: "var(--font-cinzel)", fontSize: "0.75rem", letterSpacing: "0.2em", textTransform: "uppercase", cursor: "pointer", transition: "all 0.25s" }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = "var(--accent-gold)"; e.currentTarget.style.color = "var(--bg-primary)"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--accent-gold-light)"; }}
+              >
+                Back to World Map →
+              </button>
+            </div>
+          )}
+        </div>
+      </PageShell>
+    );
+  }
+
+  // ── Story mode render ────────────────────────────────────────────────────
   return (
     <PageShell style={{ height: "100vh", overflow: "hidden", display: "flex", flexDirection: "column", minHeight: "unset" }}>
       <GameHeader playerName={playerName} />
@@ -210,7 +417,7 @@ export default function KingdomPage({ params }: PageProps) {
       <div style={{ flex: 1, display: "flex", overflow: "hidden", padding: "16px 32px 24px", gap: "0" }}>
 
         {/* ── Left — Scholar chat ── */}
-        <div style={{ width: "38%", flexShrink: 0, display: "flex", flexDirection: "column", paddingRight: "32px", borderRight: "1px solid var(--border-gold)" }}>
+        <div style={{ width: "38%", flexShrink: 0, display: "flex", flexDirection: "column", paddingRight: "32px", paddingBottom: "100px", borderRight: "1px solid var(--border-gold)" }}>
 
           {/* Scholar identity */}
           <div style={{ marginBottom: "16px" }}>
@@ -330,51 +537,89 @@ export default function KingdomPage({ params }: PageProps) {
             <div ref={chatEndRef} />
           </div>
 
-          {/* Input — always available until artifact collected */}
+          {/* Input — choice buttons for choice-gated kingdoms, free text otherwise */}
           {!artifactCollected ? (
-            <form data-lingo-skip onSubmit={(e) => { e.preventDefault(); handleSend(); }} style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-              <textarea
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
-                placeholder={chatPhase === "question" ? "Answer the scholar..." : "Ask the scholar anything..."}
-                rows={3}
-                style={{
-                  background: "var(--bg-card)",
-                  border: "1px solid var(--border-gold)",
-                  color: "var(--text-primary)",
-                  padding: "10px 14px",
-                  fontFamily: "var(--font-crimson)",
-                  fontSize: "0.95rem",
-                  resize: "none",
-                  outline: "none",
-                  transition: "border-color 0.2s",
-                }}
-                onFocus={(e) => { e.currentTarget.style.borderColor = "var(--accent-gold)"; }}
-                onBlur={(e) => { e.currentTarget.style.borderColor = "var(--border-gold)"; }}
-              />
-              <button
-                type="submit"
-                disabled={!input.trim() || typing}
-                style={{
-                  padding: "10px",
-                  border: "1px solid var(--accent-gold)",
-                  background: "transparent",
-                  color: "var(--accent-gold-light)",
-                  fontFamily: "var(--font-cinzel)",
-                  fontSize: "0.7rem",
-                  letterSpacing: "0.15em",
-                  textTransform: "uppercase",
-                  cursor: input.trim() && !typing ? "pointer" : "not-allowed",
-                  opacity: input.trim() && !typing ? 1 : 0.5,
-                  transition: "all 0.2s",
-                }}
-                onMouseEnter={(e) => { if (input.trim() && !typing) { e.currentTarget.style.background = "var(--accent-gold)"; e.currentTarget.style.color = "var(--bg-primary)"; } }}
-                onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--accent-gold-light)"; }}
-              >
-                Speak →
-              </button>
-            </form>
+            KINGDOM_CHOICES[kingdomSlug] && chatPhase === "question" && chosenDifficulty === null ? (
+              // Three choice buttons
+              <div data-lingo-skip style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                {KINGDOM_CHOICES[kingdomSlug].map((choice) => (
+                  <button
+                    key={choice.level}
+                    disabled={typing}
+                    onClick={() => {
+                      if (typing) return;
+                      setChosenDifficulty(choice.level);
+                      setMessages((m) => [...m, { role: "player", text: choice.text }]);
+                      addScholarMessage(choice.scholarResponse, () => setChatPhase("free_chat"));
+                    }}
+                    style={{
+                      textAlign: "left",
+                      padding: "10px 14px",
+                      border: "1px solid var(--border-gold)",
+                      background: "var(--bg-card)",
+                      color: "var(--text-secondary)",
+                      fontFamily: "var(--font-crimson)",
+                      fontSize: "0.9rem",
+                      lineHeight: 1.5,
+                      cursor: typing ? "not-allowed" : "pointer",
+                      opacity: typing ? 0.5 : 1,
+                      transition: "all 0.2s",
+                    }}
+                    onMouseEnter={(e) => { if (!typing) { e.currentTarget.style.borderColor = "var(--accent-gold)"; e.currentTarget.style.color = "var(--text-primary)"; } }}
+                    onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--border-gold)"; e.currentTarget.style.color = "var(--text-secondary)"; }}
+                  >
+                    {choice.text}
+                  </button>
+                ))}
+              </div>
+            ) : (
+              null
+              /* FREE-CHAT FORM — commented out, may be re-enabled later
+              <form data-lingo-skip onSubmit={(e) => { e.preventDefault(); handleSend(); }} style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                <textarea
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
+                  placeholder={chatPhase === "question" ? "Answer the scholar..." : "Ask the scholar anything..."}
+                  rows={3}
+                  style={{
+                    background: "var(--bg-card)",
+                    border: "1px solid var(--border-gold)",
+                    color: "var(--text-primary)",
+                    padding: "10px 14px",
+                    fontFamily: "var(--font-crimson)",
+                    fontSize: "0.95rem",
+                    resize: "none",
+                    outline: "none",
+                    transition: "border-color 0.2s",
+                  }}
+                  onFocus={(e) => { e.currentTarget.style.borderColor = "var(--accent-gold)"; }}
+                  onBlur={(e) => { e.currentTarget.style.borderColor = "var(--border-gold)"; }}
+                />
+                <button
+                  type="submit"
+                  disabled={!input.trim() || typing}
+                  style={{
+                    padding: "10px",
+                    border: "1px solid var(--accent-gold)",
+                    background: "transparent",
+                    color: "var(--accent-gold-light)",
+                    fontFamily: "var(--font-cinzel)",
+                    fontSize: "0.7rem",
+                    letterSpacing: "0.15em",
+                    textTransform: "uppercase",
+                    cursor: input.trim() && !typing ? "pointer" : "not-allowed",
+                    opacity: input.trim() && !typing ? 1 : 0.5,
+                    transition: "all 0.2s",
+                  }}
+                  onMouseEnter={(e) => { if (input.trim() && !typing) { e.currentTarget.style.background = "var(--accent-gold)"; e.currentTarget.style.color = "var(--bg-primary)"; } }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--accent-gold-light)"; }}
+                >
+                  Speak →
+                </button>
+              </form>
+              */
+            )
           ) : (
             <p data-lingo-skip style={{
               fontFamily: "var(--font-cinzel)",
@@ -395,9 +640,46 @@ export default function KingdomPage({ params }: PageProps) {
           <BackButton />
 
           {!gameComplete ? (
-            // Mini-game
-            KingdomGame ? (
-              <KingdomGame pairCount={pairCount} onComplete={handleGameComplete} />
+            // Locked until player picks a choice (for choice-gated kingdoms)
+            KINGDOM_CHOICES[kingdomSlug] && chosenDifficulty === null ? (
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", gap: "16px" }}>
+                <p style={{ fontFamily: "var(--font-cinzel)", fontSize: "1.6rem", color: "var(--border-gold)" }}>⊘</p>
+                <p style={{ fontFamily: "var(--font-cinzel)", fontSize: "0.65rem", letterSpacing: "0.2em", textTransform: "uppercase", color: "var(--text-muted)", textAlign: "center" }}>
+                  The Trial Awaits
+                </p>
+                <p style={{ fontFamily: "var(--font-crimson)", fontSize: "0.95rem", color: "var(--text-muted)", fontStyle: "italic", textAlign: "center", maxWidth: "280px" }}>
+                  Answer {config.name.split(" ")[0]}&apos;s question to unlock your trial.
+                </p>
+              </div>
+            ) : KingdomGame ? (
+              <>
+                {/* Round counter for multi-round kingdoms (not Korea) */}
+                {KINGDOM_BETWEEN_ROUNDS[kingdomSlug] && chosenDifficulty !== null && (
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px" }}>
+                    <p style={{ fontFamily: "var(--font-cinzel)", fontSize: "0.6rem", letterSpacing: "0.18em", textTransform: "uppercase", color: "var(--accent-gold)" }}>
+                      Round {roundsCompleted + 1} of {TOTAL_ROUNDS}
+                    </p>
+                    <div style={{ display: "flex", gap: "6px" }}>
+                      {Array.from({ length: TOTAL_ROUNDS }, (_, i) => (
+                        <div key={i} style={{
+                          width: "20px", height: "4px", borderRadius: "2px",
+                          backgroundColor: i < roundsCompleted ? "var(--accent-gold)" : i === roundsCompleted ? "var(--accent-gold-light)" : "var(--border-gold)",
+                          transition: "background-color 0.4s",
+                        }} />
+                      ))}
+                    </div>
+                  </div>
+                )}
+                <KingdomGame
+                  key={gameKey}
+                  pairCount={pairCount}
+                  {...(KINGDOM_CHOICES[kingdomSlug] && chosenDifficulty !== null ? {
+                    difficulty: chosenDifficulty,
+                    ...(KINGDOM_BETWEEN_ROUNDS[kingdomSlug] ? { currentRound: roundsCompleted + 1, totalRounds: TOTAL_ROUNDS } : {}),
+                  } : {})}
+                  onComplete={handleGameComplete}
+                />
+              </>
             ) : (
               <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%" }}>
                 <p style={{ fontFamily: "var(--font-crimson)", color: "var(--text-muted)", fontStyle: "italic" }}>

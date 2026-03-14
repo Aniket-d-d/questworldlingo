@@ -1,6 +1,6 @@
 import type { KingdomId } from "@/types";
 
-type KingdomField = "name" | "location" | "language" | "artifact" | "scholarName" | "historicalHook";
+type KingdomField = "name" | "location" | "language" | "artifact" | "scholarName" | "historicalHook" | "gameName";
 
 interface KingdomTextProps {
   id: KingdomId;
@@ -55,6 +55,16 @@ export default function KingdomText({ id, field }: KingdomTextProps) {
       case "korea":     return <>Monk Uicheon</>;
       case "china":     return <>Shen Kuo</>;
       case "tibet":     return <>Sakya Pandita</>;
+    }
+  }
+
+  if (field === "gameName") {
+    switch (id) {
+      case "srivijaya": return <>Tile Memory</>;
+      case "japan":     return <>Kings Placement</>;
+      case "korea":     return <>Arithmetic Sprint</>;
+      case "china":     return <>Sudoku</>;
+      case "tibet":     return <>Island Bridges</>;
     }
   }
 

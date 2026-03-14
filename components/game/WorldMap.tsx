@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { KingdomStatus } from "@/types";
 import { KINGDOMS } from "@/constants/story";
 import KingdomCard from "./KingdomCard";
+import KingdomText from "./KingdomText";
 import PlayerSetup from "./PlayerSetup";
 import PageShell from "@/components/ui/PageShell";
 import GameHeader from "@/components/ui/GameHeader";
@@ -26,10 +27,18 @@ function getInitialProgress(): Record<string, KingdomStatus> {
   };
 }
 
+type GameMode = "story" | "games";
+
+
 export default function WorldMap() {
   const router = useRouter();
   const [player, setPlayer] = useState<PlayerState | null>(null);
   const [loaded, setLoaded] = useState(false);
+  const [mode, setMode] = useState<GameMode>("story");
+  const [selectedLevels, setSelectedLevels] = useState<Record<string, 1 | 2 | 3>>(
+    Object.fromEntries(KINGDOMS.map((k) => [k.id, 1 as const]))
+  );
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
 
   useEffect(() => {
     const saved = localStorage.getItem("aryansquest_player");
@@ -58,6 +67,11 @@ export default function WorldMap() {
     router.push(`/game/${kingdomId}`);
   }
 
+  function handleGamesCardClick(kingdomId: string) {
+    const level = selectedLevels[kingdomId];
+    router.push(`/game/${kingdomId}?mode=games&level=${level}`);
+  }
+
   if (!loaded) return null;
 
   if (!player) {
@@ -73,6 +87,22 @@ export default function WorldMap() {
       <GameHeader playerName={player.name} />
 
       <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "40px 32px 80px", display: "flex", flexDirection: "column", alignItems: "center" }}>
+
+        {/* ── Mode toggle ── */}
+        <div className="stagger-line" style={{ display: "flex", marginBottom: "32px", border: "1px solid var(--border-gold)", animationDelay: "0.2s" }}>
+          <button
+            onClick={() => setMode("story")}
+            style={{ padding: "10px 32px", background: mode === "story" ? "var(--accent-gold)" : "transparent", color: mode === "story" ? "var(--bg-primary)" : "var(--text-muted)", fontFamily: "var(--font-cinzel)", fontSize: "0.65rem", letterSpacing: "0.2em", textTransform: "uppercase", border: "none", cursor: "pointer", transition: "all 0.2s" }}
+          >
+            Story Mode
+          </button>
+          <button
+            onClick={() => setMode("games")}
+            style={{ padding: "10px 32px", background: mode === "games" ? "var(--accent-gold)" : "transparent", color: mode === "games" ? "var(--bg-primary)" : "var(--text-muted)", fontFamily: "var(--font-cinzel)", fontSize: "0.65rem", letterSpacing: "0.2em", textTransform: "uppercase", border: "none", cursor: "pointer", transition: "all 0.2s" }}
+          >
+            Games Only
+          </button>
+        </div>
 
         {/* ── Stats bar ── */}
         <div
@@ -153,12 +183,67 @@ export default function WorldMap() {
                   kingdom.id === "china" || kingdom.id === "tibet" ? "2" : "1",
               }}
             >
-              <KingdomCard
-                kingdom={kingdom}
-                status={player.progress[kingdom.id] as KingdomStatus}
-                artifactCollected={player.artifacts.includes(kingdom.id)}
-                onClick={() => handleKingdomClick(kingdom.id)}
-              />
+              {mode === "story" ? (
+                <KingdomCard
+                  kingdom={kingdom}
+                  status={player.progress[kingdom.id] as KingdomStatus}
+                  artifactCollected={player.artifacts.includes(kingdom.id)}
+                  onClick={() => handleKingdomClick(kingdom.id)}
+                />
+              ) : (
+                /* Games-only card — always unlocked, level selector */
+                <div
+                  className="relative border border-[var(--border-gold)] bg-[var(--bg-card)] transition-all duration-300 cursor-pointer hover:border-[var(--accent-gold)] hover:bg-[var(--bg-secondary)]"
+                  style={{ padding: "32px 36px" }}
+                  onClick={() => handleGamesCardClick(kingdom.id)}
+                >
+                  <span className="absolute top-3 right-4 text-[var(--text-muted)] text-xs" style={{ fontFamily: "var(--font-cinzel)" }}>
+                    {["I","II","III","IV","V"][KINGDOMS.indexOf(kingdom)]}
+                  </span>
+
+                  <div className="mb-3" />
+
+                  <h3 className="text-lg font-semibold text-[var(--accent-gold-light)] mb-1 leading-tight" style={{ fontFamily: "var(--font-cinzel)" }}>
+                    <KingdomText id={kingdom.id} field="gameName" />
+                  </h3>
+                  <p className="text-[var(--text-muted)] text-sm mb-3 italic">
+                    <KingdomText id={kingdom.id} field="name" />
+                  </p>
+
+                  <div className="border-t border-[var(--border-color)] pt-3 mt-2">
+                    <p className="text-xs text-[var(--text-muted)] uppercase tracking-wide mb-2" style={{ fontFamily: "var(--font-cinzel)" }}>
+                      Difficulty
+                    </p>
+                    {/* Custom level dropdown — matches language selector style */}
+                    <div style={{ position: "relative" }} onClick={(e) => e.stopPropagation()}>
+                      <button
+                        onClick={() => setOpenDropdown(openDropdown === kingdom.id ? null : kingdom.id)}
+                        style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", padding: "8px 14px", border: "1px solid var(--border-gold)", background: "var(--bg-card)", color: "var(--text-muted)", fontFamily: "var(--font-cinzel)", fontSize: "0.65rem", letterSpacing: "0.1em", cursor: "pointer", transition: "color 0.2s" }}
+                        onMouseEnter={(e) => { e.currentTarget.style.color = "var(--accent-gold-light)"; }}
+                        onMouseLeave={(e) => { e.currentTarget.style.color = "var(--text-muted)"; }}
+                      >
+                        {selectedLevels[kingdom.id] === 1 ? "Level 1 — Easy" : selectedLevels[kingdom.id] === 2 ? "Level 2 — Medium" : "Level 3 — Hard"}
+                        <span style={{ fontSize: "0.6rem" }}>{openDropdown === kingdom.id ? "▲" : "▼"}</span>
+                      </button>
+                      {openDropdown === kingdom.id && (
+                        <div style={{ position: "absolute", top: "calc(100% + 2px)", left: 0, right: 0, background: "var(--bg-card)", border: "1px solid var(--border-gold)", zIndex: 100 }}>
+                          {([1, 2, 3] as const).map((lvl) => (
+                            <div
+                              key={lvl}
+                              onClick={() => { setSelectedLevels((prev) => ({ ...prev, [kingdom.id]: lvl })); setOpenDropdown(null); }}
+                              style={{ padding: "8px 14px", fontFamily: "var(--font-cinzel)", fontSize: "0.65rem", letterSpacing: "0.08em", color: selectedLevels[kingdom.id] === lvl ? "var(--accent-gold-light)" : "var(--text-muted)", backgroundColor: selectedLevels[kingdom.id] === lvl ? "var(--bg-secondary)" : "transparent", cursor: "pointer", transition: "all 0.2s" }}
+                              onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "var(--bg-secondary)"; e.currentTarget.style.color = "var(--accent-gold-light)"; }}
+                              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = selectedLevels[kingdom.id] === lvl ? "var(--bg-secondary)" : "transparent"; e.currentTarget.style.color = selectedLevels[kingdom.id] === lvl ? "var(--accent-gold-light)" : "var(--text-muted)"; }}
+                            >
+                              {lvl === 1 ? "Level 1 — Easy" : lvl === 2 ? "Level 2 — Medium" : "Level 3 — Hard"}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           ))}
         </div>

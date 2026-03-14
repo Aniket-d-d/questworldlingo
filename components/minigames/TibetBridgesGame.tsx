@@ -4,6 +4,9 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 interface Props {
   onComplete: (score: number, total: number) => void;
+  difficulty?: 1 | 2 | 3;
+  currentRound?: number;
+  totalRounds?: number;
 }
 
 interface Island {
@@ -24,15 +27,13 @@ interface LevelConfig {
   minIslands: number;
   maxIslands: number;
   maxNumber: number;
-  requireDegreeOneNeighbor: boolean;
-  minHighCount: number;
-  minHighThreshold: number;
+  minOddIslands: number;
 }
 
 const LEVEL_CONFIGS: LevelConfig[] = [
-  { size: 4, minIslands: 6, maxIslands: 8, maxNumber: 4, requireDegreeOneNeighbor: false, minHighCount: 0, minHighThreshold: 0 },
-  { size: 5, minIslands: 7, maxIslands: 10, maxNumber: 8, requireDegreeOneNeighbor: false, minHighCount: 2, minHighThreshold: 6 },
-  { size: 6, minIslands: 8, maxIslands: 12, maxNumber: 8, requireDegreeOneNeighbor: true, minHighCount: 0, minHighThreshold: 0 },
+  { size: 4, minIslands: 6,  maxIslands: 8,  maxNumber: 4, minOddIslands: 2 },
+  { size: 5, minIslands: 8,  maxIslands: 12, maxNumber: 6, minOddIslands: 2 },
+  { size: 6, minIslands: 10, maxIslands: 14, maxNumber: 8, minOddIslands: 2 },
 ];
 
 const CELL_SIZE = 70;
@@ -257,7 +258,7 @@ function canAddEdge(
 }
 
 function generatePuzzle(config: LevelConfig): { islands: Island[]; bridges: Record<string, number> } {
-  const attempts = 200;
+  const attempts = 300;
   for (let attempt = 0; attempt < attempts; attempt += 1) {
     const count = randInt(config.minIslands, config.maxIslands);
     const baseIslands = placeRandomIslands(config.size, count);
@@ -267,7 +268,6 @@ function generatePuzzle(config: LevelConfig): { islands: Island[]; bridges: Reco
 
     const degs = Object.values(adjacency).map((list) => list.length);
     if (degs.some((d) => d === 0)) continue;
-    if (config.requireDegreeOneNeighbor && !degs.some((d) => d === 1)) continue;
 
     const tree = buildSpanningTree(islands, adjacency, config.maxNumber);
     if (!tree) continue;
@@ -287,30 +287,26 @@ function generatePuzzle(config: LevelConfig): { islands: Island[]; bridges: Reco
       counts[b] += 1;
     }
 
-    if (config.minHighCount > 0) {
-      const target = config.minHighThreshold;
-      let safety = 0;
-      while (safety < 200) {
-        const highCount = Object.values(counts).filter((v) => v >= target).length;
-        if (highCount >= config.minHighCount) break;
-        const candidates = allPairs.filter((key) => {
-          const [a, b] = key.split("|");
-          return (counts[a] < target || counts[b] < target) &&
-            canAddEdge(a, b, bridges, counts, config.maxNumber, islandsById);
-        });
-        if (!candidates.length) break;
-        const pick = candidates[Math.floor(Math.random() * candidates.length)];
-        const [a, b] = pick.split("|");
-        bridges[pick] = (bridges[pick] ?? 0) + 1;
-        counts[a] += 1;
-        counts[b] += 1;
-        safety += 1;
-      }
-      const highCount = Object.values(counts).filter((v) => v >= target).length;
-      if (highCount < config.minHighCount) continue;
-    }
-
     if (Object.values(counts).some((v) => v < 1 || v > config.maxNumber || v > 8)) continue;
+
+    // Ensure at least minOddIslands islands have odd required counts.
+    // Odd totals break the "double everything" strategy.
+    // Rather than rejecting, we actively fix: find a double bridge and undo one
+    // crossing of it to flip two islands back to odd parity.
+    let oddCount = Object.values(counts).filter((v) => v % 2 === 1).length;
+    if (oddCount < config.minOddIslands) {
+      const doubleBridgeKeys = Object.keys(bridges).filter((k) => bridges[k] === 2);
+      for (const key of shuffle(doubleBridgeKeys)) {
+        if (oddCount >= config.minOddIslands) break;
+        const [a, b] = key.split("|");
+        // Downgrade from 2 to 1 — flips both endpoints from even→odd (or odd→even)
+        bridges[key] = 1;
+        counts[a] -= 1;
+        counts[b] -= 1;
+        oddCount = Object.values(counts).filter((v) => v % 2 === 1).length;
+      }
+    }
+    if (oddCount < config.minOddIslands) continue;
 
     const withRequired = islands.map((i) => ({ ...i, required: counts[i.id] }));
     const solution = Object.entries(bridges).map(([key, count]) => {
@@ -328,7 +324,8 @@ function signatureFor(size: number, islands: Island[]): string {
   return `${size}|` + sorted.map((i) => `${i.id}:${i.r},${i.c},${i.required}`).join(";");
 }
 
-export default function TibetBridgesGame({ onComplete }: Props) {
+export default function TibetBridgesGame({ onComplete, difficulty, currentRound, totalRounds }: Props) {
+  const activeLevels = difficulty ? [LEVEL_CONFIGS[difficulty - 1]] : LEVEL_CONFIGS;
   const [levelIndex, setLevelIndex] = useState(0);
   const [islands, setIslands] = useState<Island[]>([]);
   const [bridges, setBridges] = useState<Record<string, number>>({});
@@ -337,7 +334,7 @@ export default function TibetBridgesGame({ onComplete }: Props) {
   const advanceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastSignatureRef = useRef<Record<number, string>>({});
 
-  const level = LEVEL_CONFIGS[levelIndex];
+  const level = activeLevels[levelIndex];
   const levelSize = level.size;
   const islandsById = useMemo(() => {
     const map: Record<string, Island> = {};
@@ -356,8 +353,13 @@ export default function TibetBridgesGame({ onComplete }: Props) {
       let signature = signatureFor(level.size, next.islands);
       let safety = 0;
       while (lastSignatureRef.current[level.size] === signature && safety < 5) {
-        next = generatePuzzle(level);
-        signature = signatureFor(level.size, next.islands);
+        try {
+          const candidate = generatePuzzle(level);
+          next = candidate;
+          signature = signatureFor(level.size, next.islands);
+        } catch {
+          break;
+        }
         safety += 1;
       }
       lastSignatureRef.current[level.size] = signature;
@@ -422,14 +424,14 @@ export default function TibetBridgesGame({ onComplete }: Props) {
 
   useEffect(() => {
     if (!isSolved || status !== "playing") return;
-    if (levelIndex < LEVEL_CONFIGS.length - 1) {
+    if (levelIndex < activeLevels.length - 1) {
       setStatus("level_complete");
       advanceTimerRef.current = setTimeout(() => {
         setLevelIndex((i) => i + 1);
       }, 900);
     } else {
       setStatus("complete");
-      advanceTimerRef.current = setTimeout(() => onComplete(LEVEL_CONFIGS.length, LEVEL_CONFIGS.length), 700);
+      advanceTimerRef.current = setTimeout(() => onComplete(activeLevels.length, activeLevels.length), 700);
     }
   }, [isSolved, levelIndex, status, onComplete]);
 
@@ -514,9 +516,10 @@ export default function TibetBridgesGame({ onComplete }: Props) {
         </p>
       </div>
 
-      {/* Level tracker */}
+      {/* Level tracker — only shown when playing all levels (no difficulty chosen) */}
+      {!difficulty && (
       <div style={{ display: "flex", justifyContent: "center", gap: "10px", marginBottom: "14px" }}>
-        {LEVEL_CONFIGS.map((lvl, i) => {
+        {activeLevels.map((lvl, i) => {
           const isCurrent = i === levelIndex;
           const color = isCurrent ? "var(--accent-gold-light)" : "var(--text-muted)";
           return (
@@ -537,6 +540,25 @@ export default function TibetBridgesGame({ onComplete }: Props) {
           );
         })}
       </div>
+      )}
+
+      {/* Round progress boxes when difficulty is chosen */}
+      {difficulty && currentRound && totalRounds && (
+        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "8px", marginBottom: "14px" }}>
+          <p style={{ fontFamily: "var(--font-cinzel)", fontSize: "0.6rem", letterSpacing: "0.18em", textTransform: "uppercase", color: "var(--accent-gold)" }}>
+            Round {currentRound} of {totalRounds}
+          </p>
+          <div style={{ display: "flex", gap: "6px" }}>
+            {Array.from({ length: totalRounds }, (_, i) => (
+              <div key={i} style={{
+                width: "20px", height: "4px", borderRadius: "2px",
+                backgroundColor: i < currentRound - 1 ? "var(--accent-gold)" : i === currentRound - 1 ? "var(--accent-gold-light)" : "var(--border-gold)",
+                transition: "background-color 0.4s",
+              }} />
+            ))}
+          </div>
+        </div>
+      )}
 
       <div style={{ display: "flex", justifyContent: "center", gap: "24px", flex: 1 }}>
         {/* Board */}
@@ -741,7 +763,7 @@ export default function TibetBridgesGame({ onComplete }: Props) {
             <p style={{ fontFamily: "var(--font-cinzel)", color: "var(--accent-gold)", letterSpacing: "0.1em" }}>
               Level Complete
             </p>
-            {levelIndex < LEVEL_CONFIGS.length - 1 && (
+            {levelIndex < activeLevels.length - 1 && (
               <button
                 onClick={goToNextLevel}
                 style={{
