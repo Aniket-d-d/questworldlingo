@@ -38,6 +38,7 @@ export default function WorldMap() {
   const [selectedLevels, setSelectedLevels] = useState<Record<string, 1 | 2 | 3>>(
     Object.fromEntries(KINGDOMS.map((k) => [k.id, 1 as const]))
   );
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
 
   useEffect(() => {
     const saved = localStorage.getItem("aryansquest_player");
@@ -213,31 +214,33 @@ export default function WorldMap() {
                     <p className="text-xs text-[var(--text-muted)] uppercase tracking-wide mb-2" style={{ fontFamily: "var(--font-cinzel)" }}>
                       Difficulty
                     </p>
-                    {/* Level selector — stops click propagation so it doesn't launch the game */}
-                    <select
-                      value={selectedLevels[kingdom.id]}
-                      onClick={(e) => e.stopPropagation()}
-                      onChange={(e) => {
-                        e.stopPropagation();
-                        setSelectedLevels((prev) => ({ ...prev, [kingdom.id]: Number(e.target.value) as 1 | 2 | 3 }));
-                      }}
-                      style={{
-                        background: "var(--bg-primary)",
-                        border: "1px solid var(--border-gold)",
-                        color: "var(--text-secondary)",
-                        fontFamily: "var(--font-cinzel)",
-                        fontSize: "0.65rem",
-                        letterSpacing: "0.1em",
-                        padding: "6px 10px",
-                        width: "100%",
-                        cursor: "pointer",
-                        outline: "none",
-                      }}
-                    >
-                      <option value={1}>Level 1 — Easy</option>
-                      <option value={2}>Level 2 — Medium</option>
-                      <option value={3}>Level 3 — Hard</option>
-                    </select>
+                    {/* Custom level dropdown — matches language selector style */}
+                    <div style={{ position: "relative" }} onClick={(e) => e.stopPropagation()}>
+                      <button
+                        onClick={() => setOpenDropdown(openDropdown === kingdom.id ? null : kingdom.id)}
+                        style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", padding: "8px 14px", border: "1px solid var(--border-gold)", background: "var(--bg-card)", color: "var(--text-muted)", fontFamily: "var(--font-cinzel)", fontSize: "0.65rem", letterSpacing: "0.1em", cursor: "pointer", transition: "color 0.2s" }}
+                        onMouseEnter={(e) => { e.currentTarget.style.color = "var(--accent-gold-light)"; }}
+                        onMouseLeave={(e) => { e.currentTarget.style.color = "var(--text-muted)"; }}
+                      >
+                        {selectedLevels[kingdom.id] === 1 ? "Level 1 — Easy" : selectedLevels[kingdom.id] === 2 ? "Level 2 — Medium" : "Level 3 — Hard"}
+                        <span style={{ fontSize: "0.6rem" }}>{openDropdown === kingdom.id ? "▲" : "▼"}</span>
+                      </button>
+                      {openDropdown === kingdom.id && (
+                        <div style={{ position: "absolute", top: "calc(100% + 2px)", left: 0, right: 0, background: "var(--bg-card)", border: "1px solid var(--border-gold)", zIndex: 100 }}>
+                          {([1, 2, 3] as const).map((lvl) => (
+                            <div
+                              key={lvl}
+                              onClick={() => { setSelectedLevels((prev) => ({ ...prev, [kingdom.id]: lvl })); setOpenDropdown(null); }}
+                              style={{ padding: "8px 14px", fontFamily: "var(--font-cinzel)", fontSize: "0.65rem", letterSpacing: "0.08em", color: selectedLevels[kingdom.id] === lvl ? "var(--accent-gold-light)" : "var(--text-muted)", backgroundColor: selectedLevels[kingdom.id] === lvl ? "var(--bg-secondary)" : "transparent", cursor: "pointer", transition: "all 0.2s" }}
+                              onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "var(--bg-secondary)"; e.currentTarget.style.color = "var(--accent-gold-light)"; }}
+                              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = selectedLevels[kingdom.id] === lvl ? "var(--bg-secondary)" : "transparent"; e.currentTarget.style.color = selectedLevels[kingdom.id] === lvl ? "var(--accent-gold-light)" : "var(--text-muted)"; }}
+                            >
+                              {lvl === 1 ? "Level 1 — Easy" : lvl === 2 ? "Level 2 — Medium" : "Level 3 — Hard"}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               )}
