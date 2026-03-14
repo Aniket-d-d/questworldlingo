@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { KingdomStatus } from "@/types";
 import { KINGDOMS } from "@/constants/story";
 import KingdomCard from "./KingdomCard";
+import KingdomText from "./KingdomText";
 import PlayerSetup from "./PlayerSetup";
 import PageShell from "@/components/ui/PageShell";
 import GameHeader from "@/components/ui/GameHeader";
@@ -26,10 +27,17 @@ function getInitialProgress(): Record<string, KingdomStatus> {
   };
 }
 
+type GameMode = "story" | "games";
+
+
 export default function WorldMap() {
   const router = useRouter();
   const [player, setPlayer] = useState<PlayerState | null>(null);
   const [loaded, setLoaded] = useState(false);
+  const [mode, setMode] = useState<GameMode>("story");
+  const [selectedLevels, setSelectedLevels] = useState<Record<string, 1 | 2 | 3>>(
+    Object.fromEntries(KINGDOMS.map((k) => [k.id, 1 as const]))
+  );
 
   useEffect(() => {
     const saved = localStorage.getItem("aryansquest_player");
@@ -58,6 +66,11 @@ export default function WorldMap() {
     router.push(`/game/${kingdomId}`);
   }
 
+  function handleGamesCardClick(kingdomId: string) {
+    const level = selectedLevels[kingdomId];
+    router.push(`/game/${kingdomId}?mode=games&level=${level}`);
+  }
+
   if (!loaded) return null;
 
   if (!player) {
@@ -73,6 +86,30 @@ export default function WorldMap() {
       <GameHeader playerName={player.name} />
 
       <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "40px 32px 80px", display: "flex", flexDirection: "column", alignItems: "center" }}>
+
+        {/* ── Mode toggle ── */}
+        <div className="stagger-line" style={{ display: "flex", marginBottom: "32px", border: "1px solid var(--border-gold)", animationDelay: "0.2s" }}>
+          {(["story", "games"] as GameMode[]).map((m) => (
+            <button
+              key={m}
+              onClick={() => setMode(m)}
+              style={{
+                padding: "10px 32px",
+                background: mode === m ? "var(--accent-gold)" : "transparent",
+                color: mode === m ? "var(--bg-primary)" : "var(--text-muted)",
+                fontFamily: "var(--font-cinzel)",
+                fontSize: "0.65rem",
+                letterSpacing: "0.2em",
+                textTransform: "uppercase",
+                border: "none",
+                cursor: "pointer",
+                transition: "all 0.2s",
+              }}
+            >
+              {m === "story" ? "Story Mode" : "Games Only"}
+            </button>
+          ))}
+        </div>
 
         {/* ── Stats bar ── */}
         <div
@@ -153,12 +190,70 @@ export default function WorldMap() {
                   kingdom.id === "china" || kingdom.id === "tibet" ? "2" : "1",
               }}
             >
-              <KingdomCard
-                kingdom={kingdom}
-                status={player.progress[kingdom.id] as KingdomStatus}
-                artifactCollected={player.artifacts.includes(kingdom.id)}
-                onClick={() => handleKingdomClick(kingdom.id)}
-              />
+              {mode === "story" ? (
+                <KingdomCard
+                  kingdom={kingdom}
+                  status={player.progress[kingdom.id] as KingdomStatus}
+                  artifactCollected={player.artifacts.includes(kingdom.id)}
+                  onClick={() => handleKingdomClick(kingdom.id)}
+                />
+              ) : (
+                /* Games-only card — always unlocked, level selector */
+                <div
+                  className="relative border border-[var(--border-gold)] bg-[var(--bg-card)] transition-all duration-300 cursor-pointer hover:border-[var(--accent-gold)] hover:bg-[var(--bg-secondary)]"
+                  style={{ padding: "32px 36px" }}
+                  onClick={() => handleGamesCardClick(kingdom.id)}
+                >
+                  <span className="absolute top-3 right-4 text-[var(--text-muted)] text-xs" style={{ fontFamily: "var(--font-cinzel)" }}>
+                    {["I","II","III","IV","V"][KINGDOMS.indexOf(kingdom)]}
+                  </span>
+
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-2 h-2 rounded-full bg-[var(--accent-gold)]" />
+                    <span className="text-xs tracking-widest uppercase text-[var(--text-muted)]" style={{ fontFamily: "var(--font-cinzel)" }}>
+                      Available
+                    </span>
+                  </div>
+
+                  <h3 className="text-lg font-semibold text-[var(--accent-gold-light)] mb-1 leading-tight" style={{ fontFamily: "var(--font-cinzel)" }}>
+                    <KingdomText id={kingdom.id} field="gameName" />
+                  </h3>
+                  <p className="text-[var(--text-muted)] text-sm mb-3 italic">
+                    <KingdomText id={kingdom.id} field="name" />
+                  </p>
+
+                  <div className="border-t border-[var(--border-color)] pt-3 mt-2">
+                    <p className="text-xs text-[var(--text-muted)] uppercase tracking-wide mb-2" style={{ fontFamily: "var(--font-cinzel)" }}>
+                      Difficulty
+                    </p>
+                    {/* Level selector — stops click propagation so it doesn't launch the game */}
+                    <select
+                      value={selectedLevels[kingdom.id]}
+                      onClick={(e) => e.stopPropagation()}
+                      onChange={(e) => {
+                        e.stopPropagation();
+                        setSelectedLevels((prev) => ({ ...prev, [kingdom.id]: Number(e.target.value) as 1 | 2 | 3 }));
+                      }}
+                      style={{
+                        background: "var(--bg-primary)",
+                        border: "1px solid var(--border-gold)",
+                        color: "var(--text-secondary)",
+                        fontFamily: "var(--font-cinzel)",
+                        fontSize: "0.65rem",
+                        letterSpacing: "0.1em",
+                        padding: "6px 10px",
+                        width: "100%",
+                        cursor: "pointer",
+                        outline: "none",
+                      }}
+                    >
+                      <option value={1}>Level 1 — Easy</option>
+                      <option value={2}>Level 2 — Medium</option>
+                      <option value={3}>Level 3 — Hard</option>
+                    </select>
+                  </div>
+                </div>
+              )}
             </div>
           ))}
         </div>

@@ -15,6 +15,7 @@ import KingdomText from "@/components/game/KingdomText";
 
 interface PageProps {
   params: Promise<{ kingdom: string }>;
+  searchParams: Promise<{ mode?: string; level?: string }>;
 }
 
 interface ChatMessage {
@@ -203,8 +204,11 @@ const GAME_COMPLETE_RESPONSES: Record<string, string> = {
 
 type ChatPhase = "question" | "free_chat";
 
-export default function KingdomPage({ params }: PageProps) {
+export default function KingdomPage({ params, searchParams }: PageProps) {
   const { kingdom: kingdomSlug } = use(params);
+  const { mode: pageMode, level: pageLevel } = use(searchParams);
+  const isGamesMode = pageMode === "games";
+  const gamesLevel = (Number(pageLevel) as 1 | 2 | 3) || 1;
   const router = useRouter();
 
   const kingdom = KINGDOMS.find((k) => k.id === kingdomSlug);
@@ -295,6 +299,12 @@ export default function KingdomPage({ params }: PageProps) {
   */
 
   function handleGameComplete(score: number, _total: number) {
+    // Games-only mode: single round, no chat, just show complete screen
+    if (isGamesMode) {
+      setGameComplete(true);
+      return;
+    }
+
     // Choice-gated kingdoms: play 3 rounds before completing
     const betweenRounds = KINGDOM_BETWEEN_ROUNDS[kingdomSlug];
     if (betweenRounds && chosenDifficulty !== null) {
@@ -350,6 +360,56 @@ export default function KingdomPage({ params }: PageProps) {
     setTimeout(() => router.push("/game"), 1800);
   }
 
+  // ── Games-only mode render ──────────────────────────────────────────────
+  if (isGamesMode) {
+    return (
+      <PageShell style={{ height: "100vh", overflow: "hidden", display: "flex", flexDirection: "column", minHeight: "unset" }}>
+        <GameHeader playerName={playerName} />
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", padding: "16px 40px 24px" }}>
+          <BackButton />
+          {!gameComplete ? (
+            KingdomGame ? (
+              <KingdomGame
+                key={gameKey}
+                pairCount={pairCount}
+                difficulty={gamesLevel}
+                onComplete={handleGameComplete}
+              />
+            ) : (
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%" }}>
+                <p style={{ fontFamily: "var(--font-crimson)", color: "var(--text-muted)", fontStyle: "italic" }}>
+                  No challenge data available.
+                </p>
+              </div>
+            )
+          ) : (
+            <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "16px", animation: "panelFadeIn 0.6s ease forwards" }}>
+              <p style={{ fontFamily: "var(--font-cinzel)", fontSize: "2.5rem", color: "var(--accent-gold)", opacity: 0.5 }}>✦</p>
+              <p style={{ fontFamily: "var(--font-cinzel)", fontSize: "0.6rem", letterSpacing: "0.25em", textTransform: "uppercase", color: "var(--accent-gold)" }}>
+                Game Complete
+              </p>
+              <h3 style={{ fontFamily: "var(--font-cinzel)", fontSize: "1.2rem", fontWeight: 700, color: "var(--text-primary)", textAlign: "center" }}>
+                <KingdomText id={kingdom.id} field="name" />
+              </h3>
+              <p style={{ fontFamily: "var(--font-crimson)", fontSize: "0.95rem", color: "var(--text-muted)", fontStyle: "italic" }}>
+                Level {gamesLevel} · Completed
+              </p>
+              <button
+                onClick={() => router.push("/game")}
+                style={{ marginTop: "16px", padding: "14px 40px", border: "1px solid var(--accent-gold)", background: "transparent", color: "var(--accent-gold-light)", fontFamily: "var(--font-cinzel)", fontSize: "0.75rem", letterSpacing: "0.2em", textTransform: "uppercase", cursor: "pointer", transition: "all 0.25s" }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = "var(--accent-gold)"; e.currentTarget.style.color = "var(--bg-primary)"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--accent-gold-light)"; }}
+              >
+                Back to World Map →
+              </button>
+            </div>
+          )}
+        </div>
+      </PageShell>
+    );
+  }
+
+  // ── Story mode render ────────────────────────────────────────────────────
   return (
     <PageShell style={{ height: "100vh", overflow: "hidden", display: "flex", flexDirection: "column", minHeight: "unset" }}>
       <GameHeader playerName={playerName} />
