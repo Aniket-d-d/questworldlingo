@@ -4,6 +4,9 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 interface Props {
   onComplete: (score: number, total: number) => void;
+  difficulty?: 1 | 2 | 3;
+  currentRound?: number;
+  totalRounds?: number;
 }
 
 interface Island {
@@ -328,7 +331,8 @@ function signatureFor(size: number, islands: Island[]): string {
   return `${size}|` + sorted.map((i) => `${i.id}:${i.r},${i.c},${i.required}`).join(";");
 }
 
-export default function TibetBridgesGame({ onComplete }: Props) {
+export default function TibetBridgesGame({ onComplete, difficulty, currentRound, totalRounds }: Props) {
+  const activeLevels = difficulty ? [LEVEL_CONFIGS[difficulty - 1]] : LEVEL_CONFIGS;
   const [levelIndex, setLevelIndex] = useState(0);
   const [islands, setIslands] = useState<Island[]>([]);
   const [bridges, setBridges] = useState<Record<string, number>>({});
@@ -337,7 +341,7 @@ export default function TibetBridgesGame({ onComplete }: Props) {
   const advanceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastSignatureRef = useRef<Record<number, string>>({});
 
-  const level = LEVEL_CONFIGS[levelIndex];
+  const level = activeLevels[levelIndex];
   const levelSize = level.size;
   const islandsById = useMemo(() => {
     const map: Record<string, Island> = {};
@@ -422,14 +426,14 @@ export default function TibetBridgesGame({ onComplete }: Props) {
 
   useEffect(() => {
     if (!isSolved || status !== "playing") return;
-    if (levelIndex < LEVEL_CONFIGS.length - 1) {
+    if (levelIndex < activeLevels.length - 1) {
       setStatus("level_complete");
       advanceTimerRef.current = setTimeout(() => {
         setLevelIndex((i) => i + 1);
       }, 900);
     } else {
       setStatus("complete");
-      advanceTimerRef.current = setTimeout(() => onComplete(LEVEL_CONFIGS.length, LEVEL_CONFIGS.length), 700);
+      advanceTimerRef.current = setTimeout(() => onComplete(activeLevels.length, activeLevels.length), 700);
     }
   }, [isSolved, levelIndex, status, onComplete]);
 
@@ -514,9 +518,10 @@ export default function TibetBridgesGame({ onComplete }: Props) {
         </p>
       </div>
 
-      {/* Level tracker */}
+      {/* Level tracker — only shown when playing all levels (no difficulty chosen) */}
+      {!difficulty && (
       <div style={{ display: "flex", justifyContent: "center", gap: "10px", marginBottom: "14px" }}>
-        {LEVEL_CONFIGS.map((lvl, i) => {
+        {activeLevels.map((lvl, i) => {
           const isCurrent = i === levelIndex;
           const color = isCurrent ? "var(--accent-gold-light)" : "var(--text-muted)";
           return (
@@ -537,6 +542,25 @@ export default function TibetBridgesGame({ onComplete }: Props) {
           );
         })}
       </div>
+      )}
+
+      {/* Round progress boxes when difficulty is chosen */}
+      {difficulty && currentRound && totalRounds && (
+        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "8px", marginBottom: "14px" }}>
+          <p style={{ fontFamily: "var(--font-cinzel)", fontSize: "0.6rem", letterSpacing: "0.18em", textTransform: "uppercase", color: "var(--accent-gold)" }}>
+            Round {currentRound} of {totalRounds}
+          </p>
+          <div style={{ display: "flex", gap: "6px" }}>
+            {Array.from({ length: totalRounds }, (_, i) => (
+              <div key={i} style={{
+                width: "20px", height: "4px", borderRadius: "2px",
+                backgroundColor: i < currentRound - 1 ? "var(--accent-gold)" : i === currentRound - 1 ? "var(--accent-gold-light)" : "var(--border-gold)",
+                transition: "background-color 0.4s",
+              }} />
+            ))}
+          </div>
+        </div>
+      )}
 
       <div style={{ display: "flex", justifyContent: "center", gap: "24px", flex: 1 }}>
         {/* Board */}
@@ -741,7 +765,7 @@ export default function TibetBridgesGame({ onComplete }: Props) {
             <p style={{ fontFamily: "var(--font-cinzel)", color: "var(--accent-gold)", letterSpacing: "0.1em" }}>
               Level Complete
             </p>
-            {levelIndex < LEVEL_CONFIGS.length - 1 && (
+            {levelIndex < activeLevels.length - 1 && (
               <button
                 onClick={goToNextLevel}
                 style={{

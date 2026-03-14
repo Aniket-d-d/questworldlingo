@@ -110,18 +110,43 @@ const CHINA_BETWEEN_ROUNDS: Record<number, string> = {
   2: "Again the numbers settle into their proper place. One final trial. Do not let precision falter now.",
 };
 
+const TIBET_CHOICES = [
+  {
+    level: 1 as const,
+    text: "I come in humility. Nalanda's texts survived because monks like you preserved them without asking for recognition. I seek only to continue that work.",
+    scholarResponse: "Humility is the first discipline of the mountains. The monks who carried these manuscripts across the passes asked nothing for themselves either. I will give you the gentlest trial — prove your mind is as steady as your words.",
+  },
+  {
+    level: 2 as const,
+    text: "I know the manuscripts arrived here before the smoke had settled over Nalanda. You anticipated the fall. I am here to ensure they reach the scholars who still need them.",
+    scholarResponse: "You have read carefully. Yes — word reached us before the fires were lit. A scholar's answer deserves a scholar's trial. Show me that your mind can find the connections others miss.",
+  },
+  {
+    level: 3 as const,
+    text: "The mountains will not stop me. I have followed this knowledge through deserts, across seas, and up these slopes. I will not leave without the manuscripts.",
+    scholarResponse: "We have heard that claim before — from those who turned back at the first pass. The hardest trial will tell me whether your resolve is genuine. I will give you no quarter. Prove yourself.",
+  },
+];
+
+const TIBET_BETWEEN_ROUNDS: Record<number, string> = {
+  1: "The bridges hold. Your mind finds connections where others see only gaps. Once more.",
+  2: "Again the islands yield to you. One final trial. Do not lose the thread now.",
+};
+
 // Lookup maps for kingdoms that use the choice system
 const KINGDOM_CHOICES: Record<string, typeof SRIVIJAYA_CHOICES> = {
   srivijaya: SRIVIJAYA_CHOICES,
   japan: JAPAN_CHOICES,
   korea: KOREA_CHOICES,
   china: CHINA_CHOICES,
+  tibet: TIBET_CHOICES,
 };
 // Only kingdoms that play multiple rounds (not Korea — Korea uses time pressure instead)
 const KINGDOM_BETWEEN_ROUNDS: Record<string, Record<number, string>> = {
   srivijaya: SRIVIJAYA_BETWEEN_ROUNDS,
   japan: JAPAN_BETWEEN_ROUNDS,
   china: CHINA_BETWEEN_ROUNDS,
+  tibet: TIBET_BETWEEN_ROUNDS,
 };
 
 // Scholar's judgment after the player's first answer
