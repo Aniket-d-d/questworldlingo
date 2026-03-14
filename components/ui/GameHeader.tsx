@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import GameTitle from "./GameTitle";
+import AboutGameModal from "./AboutGameModal";
 import { DEFAULT_LANGUAGE, LANGUAGES } from "@/constants/languages";
 import type { LocaleCode } from "lingo.dev/spec";
 import { useLingoContext } from "@lingo.dev/compiler/react";
@@ -15,6 +16,7 @@ interface GameHeaderProps {
 export default function GameHeader({ playerName, style }: GameHeaderProps) {
   const { locale, setLocale } = useLingoContext();
   const [langOpen, setLangOpen] = useState(false);
+  const [aboutOpen, setAboutOpen] = useState(false);
 
   const selectedLang =
     LANGUAGES.find((l) => l.code === locale) ?? LANGUAGES.find((l) => l.code === DEFAULT_LANGUAGE);
@@ -126,8 +128,32 @@ export default function GameHeader({ playerName, style }: GameHeaderProps) {
         </div>
       </div>
 
-      {/* Right — game title */}
-      <GameTitle />
+      {/* Right — about button + game title */}
+      <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+        <button
+          onClick={() => setAboutOpen(true)}
+          style={{
+            padding: "8px 18px",
+            border: "1px solid var(--border-gold)",
+            background: "transparent",
+            color: "var(--text-secondary)",
+            fontFamily: "var(--font-cinzel)",
+            fontSize: "0.65rem",
+            fontWeight: 700,
+            letterSpacing: "0.15em",
+            textTransform: "uppercase",
+            cursor: "pointer",
+            transition: "all 0.2s",
+          }}
+          onMouseEnter={(e) => { e.currentTarget.style.borderColor = "var(--accent-gold)"; e.currentTarget.style.color = "var(--accent-gold-light)"; }}
+          onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--border-gold)"; e.currentTarget.style.color = "var(--text-secondary)"; }}
+        >
+          About Game
+        </button>
+        <GameTitle />
+      </div>
+
+      {aboutOpen && <AboutGameModal onClose={() => setAboutOpen(false)} />}
     </div>
   );
 }
