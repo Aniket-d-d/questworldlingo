@@ -50,7 +50,7 @@ export default function OpeningScene() {
       return;
     }
     await setLocale(code);
-    setLangOpen(false);
+    window.location.reload();
   }
 
   return (
