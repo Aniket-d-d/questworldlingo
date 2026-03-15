@@ -2,7 +2,8 @@
 
 > A multilingual historical puzzle RPG — built for [Lingo.dev Hackathon #3]
 
-**Live Demo:** [questworldlingo.vercel.app](https://questworldlingo.vercel.app)
+**Live Demo:** [questworldlingo.vercel.app](https://questworldlingo.vercel.app)  
+
 **DemoVideo:** [I Built an AI Puzzle Game That Interacts In Any Language in 4 Days Using Lingo.dev](https://youtu.be/4TqJK-Olef0)
 
 ![Opening Scene](public/screenshots/opening-scene.png)
