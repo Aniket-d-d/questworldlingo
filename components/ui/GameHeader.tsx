@@ -27,7 +27,7 @@ export default function GameHeader({ playerName, style }: GameHeaderProps) {
       return;
     }
     await setLocale(code);
-    setLangOpen(false);
+    window.location.reload();
   }
 
   return (

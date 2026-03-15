@@ -51,5 +51,3 @@ PROJECTIDEA-SUMMARY.txt
 
 # Lingo.dev local metadata/cache
 lingo/
-!lingo/cache/
-!lingo/cache/*.json

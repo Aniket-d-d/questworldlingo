@@ -24,7 +24,7 @@ export default function PlayerSetup({ onComplete }: PlayerSetupProps) {
   async function handleSelectLanguage(code: LocaleCode) {
     if (code === locale) { setLangOpen(false); return; }
     await setLocale(code);
-    setLangOpen(false);
+    window.location.reload();
   }
 
   const ERROR_MESSAGES = {
