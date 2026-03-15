@@ -4,13 +4,15 @@
 
 **Live Demo:** [questworldlingo.vercel.app](https://questworldlingo.vercel.app)
 
+![Opening Scene](public/screenshots/opening-scene.png)
+
 ---
 
-## Hackathon Submission
+## About the Project
 
-- **Event:** [Lingo.dev Hackathon #3 — WeMakeDevs](https://www.wemakedevs.org/hackathons/lingohack25)
-- **Submitted by:** Aniket
-- **Lingo.dev features used:** Compiler (build-time UI translation) + Runtime SDK (real-time AI response translation)
+Aryan's Quest was built for **Lingo.dev Hackathon #3** (March 2026). The idea was simple: make learning history fun. Puzzle games are universally engaging, and combining them with real historical context — scholars who actually existed, manuscripts that are real, kingdoms at the height of their power in 1203 AD — makes the experience both entertaining and educational.
+
+The multilingual layer was central from the start. A game about knowledge crossing borders should itself cross language barriers. Lingo.dev made that possible: the compiler handles the static UI at build time, and the Runtime SDK makes live AI conversations work in any language the player chooses.
 
 ---
 
@@ -167,20 +169,20 @@ GEMINI_API_KEY=your_google_gemini_api_key
 
 ### Run Locally
 
-```bash
-npm run dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) in your browser.
-
-### Build
+This project uses the Lingo.dev Compiler for build-time UI translations. To have all 9 languages available, run the build step first — this triggers the compiler to translate all static text and output the locale files:
 
 ```bash
 npm run build
 npm start
 ```
 
-> Note: `npm run build` triggers Lingo.dev's compiler to translate all UI text into 8 languages. This requires a valid `LINGODOTDEV_API_KEY`.
+Alternatively, for development without translations (English only):
+
+```bash
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ### Vercel Deployment
 
@@ -223,6 +225,7 @@ questworldlingo/
 │   ├── miniGames.tsx             # Word pairs + puzzle data
 │   └── languages.ts              # Supported locale list
 ├── public/
+│   ├── translations/             # Compiled locale JSON files (served as static assets)
 │   └── characters/               # Scholar + Aryan SVG avatars
 └── next.config.ts                # Lingo.dev compiler config
 ```
@@ -247,8 +250,8 @@ questworldlingo/
 
 ---
 
-## About the Project
+## Hackathon Submission
 
-Aryan's Quest was built for **Lingo.dev Hackathon #3** (March 2026). The idea was simple: make learning history fun. Puzzle games are universally engaging, and combining them with real historical context — scholars who actually existed, manuscripts that are real, kingdoms at the height of their power in 1203 AD — makes the experience both entertaining and educational.
-
-The multilingual layer was central from the start. A game about knowledge crossing borders should itself cross language barriers. Lingo.dev made that possible: the compiler handles the static UI at build time, and the Runtime SDK makes live AI conversations work in any language the player chooses.
+- **Event:** [Lingo.dev Hackathon #3 — WeMakeDevs](https://www.wemakedevs.org/hackathons/lingohack25)
+- **Submitted by:** Aniket
+- **Lingo.dev features used:** Compiler (build-time UI translation) + Runtime SDK (real-time AI response translation)
