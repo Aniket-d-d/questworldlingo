@@ -1,8 +1,9 @@
 # Aryan's Quest: The Road to Rebuild Nalanda
 
-> A multilingual historical puzzle RPG — built for [Lingo.dev Hackathon #3](https://www.wemakedevs.org/hackathons/lingohack25)
+> A multilingual historical puzzle RPG — built for [Lingo.dev Hackathon #3]
 
 **Live Demo:** [questworldlingo.vercel.app](https://questworldlingo.vercel.app)
+**DemoVideo:** [I Built an AI Puzzle Game That Interacts In Any Language in 4 Days Using Lingo.dev](https://youtu.be/4TqJK-Olef0)
 
 ![Opening Scene](public/screenshots/opening-scene.png)
 
@@ -252,6 +253,6 @@ questworldlingo/
 
 ## Hackathon Submission
 
-- **Event:** [Lingo.dev Hackathon #3 — WeMakeDevs](https://www.wemakedevs.org/hackathons/lingohack25)
+- **Event:** [Lingo.dev Hackathon #3]
 - **Submitted by:** Aniket
 - **Lingo.dev features used:** Compiler (build-time UI translation) + Runtime SDK (real-time AI response translation)
