@@ -2,6 +2,8 @@
 
 > A multilingual historical puzzle RPG — built for [Lingo.dev Hackathon #3](https://www.wemakedevs.org/hackathons/lingohack25)
 
+**Live Demo:** [questworldlingo.vercel.app](https://questworldlingo.vercel.app)
+
 ---
 
 ## Hackathon Submission
@@ -179,6 +181,10 @@ npm start
 ```
 
 > Note: `npm run build` triggers Lingo.dev's compiler to translate all UI text into 8 languages. This requires a valid `LINGODOTDEV_API_KEY`.
+
+### Vercel Deployment
+
+The compiled translation JSON files are committed to `public/translations/` so Vercel can serve them as static assets without re-running the translation step on every deployment. Language switching triggers a page reload to ensure the correct locale is loaded from the start — this is intentional and works correctly in both local and production environments.
 
 ---
 
